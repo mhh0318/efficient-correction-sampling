@@ -3,13 +3,11 @@
 <p align="center">
   <a href="https://sunovivid.github.io/">Donghoon Ahn</a><sup>1</sup> &nbsp;
   <a href="https://raywang4.github.io/">Runqian Wang</a><sup>1</sup> &nbsp;
-  <a href="https://people.eecs.berkeley.edu/~efros/">Alexei A. Efros</a><sup>1,*</sup> &nbsp;
-  <a href="https://taesung.me/">Taesung Park</a><sup>2,*</sup> &nbsp;
-  <a href="https://yashbelhe.github.io/">Yash Belhe</a><sup>2,*</sup>
+  <a href="https://people.eecs.berkeley.edu/~efros/">Alexei A. Efros</a><sup>1</sup> &nbsp;
+  <a href="https://taesung.me/">Taesung Park</a><sup>2</sup> &nbsp;
+  <a href="https://yashbelhe.github.io/">Yash Belhe</a><sup>2</sup>
   <br>
   <sup>1</sup> UC Berkeley &emsp; <sup>2</sup> Reve
-  <br>
-  <sub>* Corresponding authors</sub>
 </p>
 
 <p align="center">
