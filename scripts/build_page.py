@@ -38,29 +38,48 @@ def strip_paragraph(value):
     if not match:raise ValueError('Expected one paragraph, got: '+value[:100])
     return match.group(1)
 
-def transform(document,blocks):
+def validate_image(src):
+    parsed=urlsplit(src)
+    if not parsed.scheme and not parsed.netloc:
+        path=(DOCS/unquote(parsed.path)).resolve()
+        path.relative_to(DOCS.resolve())
+        if not path.is_file():raise FileNotFoundError('Missing image: '+src)
+
+def transform(document,blocks,hero=False):
     result=[]
     for block in blocks:
         kind=block['t']
         if kind=='Div':
             attr,children=block['c'];classes=set(attr[1])
             if classes & SECTION_CLASSES:
-                result += [raw('<section'+attributes(attr)+'>'),*transform(document,children),raw('</section>')]
+                result += [raw('<section'+attributes(attr)+'>'),*transform(document,children,hero='hero' in classes),raw('</section>')]
             elif classes & PARAGRAPH_CLASSES:
                 if len(children)!=1 or children[0]['t']!='Para':
                     raise ValueError('The '+', '.join(attr[1])+' block must contain one paragraph.')
                 content=strip_paragraph(render_fragment(document,children))
                 result.append(raw('<p'+attributes(attr)+'>'+content+'</p>'))
             else:
-                block=copy.deepcopy(block);block['c'][1]=transform(document,children);result.append(block)
+                block=copy.deepcopy(block);block['c'][1]=transform(document,children,hero=hero);result.append(block)
         elif kind=='Para' and len(block['c'])==1 and block['c'][0]['t']=='Image':
-            image=block['c'][0];src=image['c'][2][0]
-            parsed=urlsplit(src)
-            if not parsed.scheme and not parsed.netloc:
-                path=(DOCS/unquote(parsed.path)).resolve()
-                path.relative_to(DOCS.resolve())
-                if not path.is_file():raise FileNotFoundError('Missing image: '+src)
+            block=copy.deepcopy(block);image=block['c'][0];src=image['c'][2][0]
+            validate_image(src)
+            options=dict(image['c'][0][2]);mobile=options.pop('mobile-srcset',None)
+            # Emit these HTML attributes directly: older Pandoc versions prefix
+            # unknown image attributes with data-, which browsers do not use.
+            loading=options.pop('loading','eager' if hero else 'lazy')
+            decoding=options.pop('decoding','async')
+            priority=options.pop('fetchpriority','high' if hero else None)
+            image['c'][0][2]=list(options.items())
             content=strip_paragraph(render_fragment(document,[block]))
+            image_attributes=' loading="'+html.escape(loading,quote=True)+'" decoding="'+html.escape(decoding,quote=True)+'"'
+            if priority:image_attributes+=' fetchpriority="'+html.escape(priority,quote=True)+'"'
+            content=content.replace('<img ','<img'+image_attributes+' ',1)
+            if mobile:
+                for candidate in mobile.split(','):
+                    path,descriptor=candidate.strip().split()
+                    if not re.fullmatch(r'[1-9]\d*w',descriptor):raise ValueError('Invalid mobile image width: '+descriptor)
+                    validate_image(path)
+                content='<picture><source media="(max-width: 650px)" sizes="calc(100vw - 32px)" srcset="'+html.escape(mobile,quote=True)+'">'+content+'</picture>'
             result.append(raw('<figure class="paper-figure"><a class="figure-link" href="'+html.escape(src,quote=True)+'" data-lightbox>'+content+'</a></figure>'))
         elif kind=='Para' and block['c'] and block['c'][0]['t']=='RawInline' and block['c'][0]['c'][0]=='html' and (
             block['c'][0]['c'][1].startswith('<summary') or block['c'][0]['c'][1].startswith('<span class="notes-link')
@@ -75,11 +94,12 @@ def transform(document,blocks):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--source',type=Path,default=DOCS/'page.md',help='Markdown source; image paths stay relative to docs/')
     parser.add_argument('--output',type=Path,help='HTML output; default: docs/index.html')
     parser.add_argument('--site-dir',type=Path,help='Create a deployable directory containing only website assets')
     args=parser.parse_args()
     if not shutil.which('pandoc'):parser.error('Pandoc is required. Install it with: sudo apt-get install pandoc')
-    source=DOCS/'page.md';template=DOCS/'template.html'
+    source=args.source.resolve();template=DOCS/'template.html'
     document=json.loads(pandoc(['--from='+READER,'--to=json'],source.read_text()))
     for key in ['title','site-url','authors','resources']:
         if key not in document['meta']:parser.error('Missing page metadata: '+key)

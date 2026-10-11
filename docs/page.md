@@ -5,7 +5,7 @@ short-title: "Correction Training"
 description: "Correction Training for Diffusion Models. High-quality ImageNet and text-to-image generation without guidance, and more diverse, natural-looking samples with CFG."
 social-description: "High-quality diffusion generation without guidance, and more diverse, natural-looking samples with CFG."
 site-url: "https://sunovivid.github.io/correction-training/"
-social-image: "assets/samples.png"
+social-image: "assets/samples-1280.jpg"
 authors:
   - name: "Donghoon Ahn"
     url: "https://sunovivid.github.io/"
@@ -62,7 +62,7 @@ on class-conditional ImageNet-256, without classifier-free guidance.
 
 :::
 
-![Class-conditional ImageNet samples without CFG and unconditional ImageNet samples generated with correction](assets/samples.png){width="1103" height="430"}
+![Class-conditional ImageNet samples without CFG and unconditional ImageNet samples generated with correction](assets/samples.svg){width="1103" height="430" mobile-srcset="assets/samples-768.jpg 768w, assets/samples-1280.jpg 1280w"}
 
 ::: {.intro}
 

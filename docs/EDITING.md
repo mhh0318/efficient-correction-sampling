@@ -5,6 +5,8 @@ The project page has its own source: **`docs/page.md`**. It does not read or syn
 - Edit the YAML block at the top for the title, authors, affiliations, navigation and resource links.
 - Edit the Markdown below it for paragraphs, headings, tables, image paths and captions.
 - Put images in `docs/assets/`, then use `![Description](assets/filename.png)` on its own line.
+- The top sample figure uses SVG on desktop and JPEG on mobile. Its `mobile-srcset` attribute selects 768px or 1280px based on screen width and pixel density; clicking opens the SVG.
+- Images below the top section load lazily. The first sample figure loads immediately.
 - The `::::` section boundaries and `:::` paragraph boundaries retain the existing page layout.
 - `docs/template.html` contains the page shell; `docs/project.css` controls styling.
 - `docs/index.html` is generated. Editing it directly does not change the Markdown source.
