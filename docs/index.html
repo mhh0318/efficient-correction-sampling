@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="index,follow"><meta name="description" content="Correction Training for Diffusion Models. High-quality ImageNet and text-to-image generation without guidance, and more diverse, natural-looking samples with CFG."><link rel="canonical" href="https://sunovivid.github.io/correction-training/"><meta property="og:type" content="website"><meta property="og:title" content="Correction Training for Diffusion Models"><meta property="og:description" content="High-quality diffusion generation without guidance, and more diverse, natural-looking samples with CFG."><meta property="og:url" content="https://sunovivid.github.io/correction-training/"><meta property="og:image" content="https://sunovivid.github.io/correction-training/assets/samples.png"><meta name="twitter:card" content="summary_large_image"><title>Correction Training for Diffusion Models</title><link rel="icon" href="assets/badges/project.svg"><link rel="stylesheet" href="project.css"><script src="project.js" defer></script></head><body>
+<a class="skip" href="#main">Skip to results</a>
+<nav class="top-nav" aria-label="Page navigation"><div class="nav-inner"><a class="nav-name" href="#top">Correction Training</a><div class="nav-links"><a href="#method">Method</a><a href="#imagenet-results">ImageNet</a><a href="#text-to-image-results">Text-to-image</a><span class="blog-soon">Blog post <small>Coming soon</small></span></div></div></nav>
+<header class="masthead" id="top"><h1>Correction Training for Diffusion Models</h1>
+<div class="authors"><a href="https://sunovivid.github.io/">Donghoon Ahn<sup>1</sup></a><a href="https://raywang4.github.io/">Runqian Wang<sup>1</sup></a><a href="https://people.eecs.berkeley.edu/~efros/">Alexei A. Efros<sup>1</sup></a><a href="https://taesung.me/">Taesung Park<sup>2</sup></a><a href="https://yashbelhe.github.io/">Yash Belhe<sup>2</sup></a></div>
+<p class="affiliations"><sup>1</sup> UC Berkeley <span></span><sup>2</sup> Reve</p>
+<div class="resource-links"><a class="resource primary" href="paper.pdf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg><span>Paper PDF</span></a><a class="resource" href="https://github.com/sunovivid/correction-training"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 6-6 6 6 6M16 6l6 6-6 6M14 3l-4 18"/></svg><span>GitHub <small>Code coming soon</small></span></a><button class="resource" type="button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 10 5v10l-10 5-10-5V7zM2 7l10 5 10-5M12 12v10"/></svg><span>Checkpoints <small>Coming soon</small></span></button></div></header><main id="main"><section class="hero"><h2>No guidance needed.</h2><p class="hero-result">Correction achieves <strong>2.07 FID with DiT, 1.92 with SiT, and 2.96 with JiT</strong><br>on class-conditional ImageNet-256, without classifier-free guidance.</p><figure><a class="figure-link" href="assets/samples.png" data-lightbox><img src="assets/samples.png" width="1103" height="430" alt="Class-conditional ImageNet samples without CFG and unconditional ImageNet samples generated with correction"></a></figure><p class="intro">We train a corrector to refine the denoiser’s prediction using the same clean target. At inference, we reuse the corrector within each denoising step before advancing the sampling trajectory.</p></section><section class="content-section" data-section="Method"><h2 id="method">Method</h2>
+<figure class="paper-figure"><a class="figure-link" href="assets/method.png" data-lightbox><img src="assets/method.png" width="100%" alt="Training and sampling diagram. Both networks learn from the same clean target, with stop-gradient through the denoiser prediction. Sampling contains an outer denoising loop and an inner correction loop."></a></figure>
+
+<ul>
+<li><strong>Training:</strong> the denoiser predicts from a noisy image; the corrector takes that prediction and learns to recover the same clean target. Correction-loss gradients are stopped at the denoiser's prediction.</li>
+<li><strong>Sampling:</strong> denoise once, apply the corrector repeatedly at the same noise level, then use the refined prediction to construct the next noisy state.</li>
+</ul>
+</section><section class="content-section" data-section="ImageNet results"><h2 id="imagenet-results">ImageNet results</h2>
+<p><strong>High-quality generation without CFG.</strong> Correction improves FID across DiT, SiT, SiT-REPA, and JiT at approximately the same sampling budget.</p>
+<div class="table-scroll" tabindex="0" aria-label="Results table"><table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">Base FID ↓</th>
+<th style="text-align: right;">Correction, no CFG ↓</th>
+<th style="text-align: right;">CFG reference ↓</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">DiT-XL/2</td>
+<td style="text-align: right;">9.58</td>
+<td style="text-align: right;"><strong>2.07</strong></td>
+<td style="text-align: right;">2.51</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SiT-XL/2</td>
+<td style="text-align: right;">8.55</td>
+<td style="text-align: right;"><strong>1.92</strong></td>
+<td style="text-align: right;">2.11</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SiT-REPA-XL/2</td>
+<td style="text-align: right;">5.53</td>
+<td style="text-align: right;"><strong>1.31</strong></td>
+<td style="text-align: right;">1.35</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">JiT-L/16</td>
+<td style="text-align: right;">14.86</td>
+<td style="text-align: right;"><strong>2.96</strong></td>
+<td style="text-align: right;">2.35</td>
+</tr>
+</tbody>
+</table></div>
+<p><em>Class-conditional ImageNet-256, FID on 50K samples, approximately 250 network evaluations per image. The budget includes denoiser, corrector, and CFG calls. See the paper for each model's settings.</em></p>
+<h3 id="control-refinement-with-k">Control refinement with K</h3>
+<p>Vary the number of corrections per denoising step to change the final sample. The examples below are <strong>complete generations from noise</strong>, with the same initial noise across each row.</p>
+<figure class="paper-figure"><a class="figure-link" href="assets/imagenet-k-sweep.png" data-lightbox><img src="assets/imagenet-k-sweep.png" width="100%" alt="Final SiT-REPA generations of a macaw and hourglass at K = 0, 1, 2, 4, and 8; DiT FID and precision–recall curves across correction counts."></a></figure>
+
+<p><em>Left: SiT-REPA final samples at different K. Right: DiT FID and precision–recall, evaluated on 50K images per setting. Denoising steps are adjusted to keep the total budget approximately fixed; more correction is not always better.</em></p>
+<details>
+<summary>More final-sample K sweeps: SiT, SiT-REPA, and JiT</summary>
+
+<figure class="paper-figure"><a class="figure-link" href="assets/imagenet-more-k-sweeps.png" data-lightbox><img src="assets/imagenet-more-k-sweeps.png" width="100%" alt="Final SiT, SiT-REPA, and JiT generations at K = 0, 1, 3, and 6, including bridges, cars, stockings, and people."></a></figure>
+
+<p><em>Each strip shares its class, initial noise, and denoising grid.</em></p>
+</details>
+
+<h3 id="more-diversity-less-oversaturation-than-strong-cfg">More diversity, less oversaturation than strong CFG</h3>
+<p>Increasing CFG can push samples toward similar close-up portraits and oversaturated colors. Correction preserves more varied poses, framings, and backgrounds while producing sharp, coherent images.</p>
+<figure class="paper-figure"><a class="figure-link" href="assets/imagenet-diversity.png" data-lightbox><img src="assets/imagenet-diversity.png" width="100%" alt="Same-class husky samples: correction retains varied poses, scenes, and colors, while strong CFG produces similar close-up faces and oversaturation. FID and recall are shown for every setting."></a></figure>
+
+<p><em>Same class and initial noises. Top: increasing correction K without CFG. Bottom: increasing CFG strength w. FID and recall quantify the quality–diversity trade-off.</em></p>
+</section><section class="content-section" data-section="Text-to-image results"><h2 id="text-to-image-results">Text-to-image results</h2>
+<h3 id="already-using-cfg-add-correction">Already using CFG? Add correction.</h3>
+<p><strong>Correction also works alongside CFG.</strong> It can reduce the “AI slop” look—oversaturated colors, overly stylized appearances, and repetitive compositions—while keeping more variety across seeds.</p>
+<figure class="paper-figure"><a class="figure-link" href="assets/cfg-plus-correction.png" data-lightbox><img src="assets/cfg-plus-correction.png" width="100%" alt="Text-to-image results for 'a photo of a bench'. Four groups compare no CFG versus CFG, and no correction versus correction. CFG plus correction produces more varied bench designs and viewpoints."></a></figure>
+
+<p><em>Prompt: “a photo of a bench.” Each group contains the same eight seeds. Left: no CFG (w = 1); right: CFG (w = 6). Top: no correction; bottom: K = 6. These qualitative examples fix 50 denoising steps, so correction adds inference compute.</em></p>
+<p>In the paper's human study, <strong>CFG + correction was preferred in 60.75% of quality votes and 60.25% of diversity votes</strong> across 80 prompts. The comparison uses the released baseline with CFG (w = 6) and the correction-trained model with CFG + correction (w = 4, K = 8), with 800 votes per criterion.</p>
+<h3 id="better-prompt-alignment-with-or-without-cfg">Better prompt alignment, with or without CFG</h3>
+<div class="table-scroll" tabindex="0" aria-label="Results table"><table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Setting</th>
+<th style="text-align: right;">K</th>
+<th style="text-align: right;">Network evaluations</th>
+<th style="text-align: right;">GenEval ↑</th>
+<th style="text-align: right;">DPG-Bench ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">No CFG</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">28.30</td>
+<td style="text-align: right;">70.71</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">No CFG + correction</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">245</td>
+<td style="text-align: right;"><strong>50.09</strong></td>
+<td style="text-align: right;"><strong>76.82</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">CFG (w = 4)</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">68.08</td>
+<td style="text-align: right;">83.38</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CFG + correction (w = 4)</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">246</td>
+<td style="text-align: right;"><strong>70.48</strong></td>
+<td style="text-align: right;"><strong>83.69</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><em>NanoGen text-to-image model at 256 × 256. The sampling budget is approximately matched: 250 vs. 245 network evaluations without CFG, and 250 vs. 246 with CFG. Guided sampling applies correction before CFG.</em></p>
+<figure class="paper-figure"><a class="figure-link" href="assets/text-to-image.png" data-lightbox><img src="assets/text-to-image.png" width="100%" alt="Text-to-image comparisons of a green guitar, vintage car, sunlit kitchen, three violins, rabbit and seashell, and Victorian library. Correction improves object geometry and organizes cluttered scenes."></a></figure>
+
+</section><section class="research-notes"><p class="eyebrow">BEHIND THE RESULTS</p><h2>Why does repeated correction help?</h2><p>Matched-denoiser comparisons, prediction trajectories, reconstruction error, and the training–inference gap.</p><span class="notes-link blog-soon">Blog post <small>Coming soon</small></span></section><section class="content-section compact" data-section="Release"><h2 id="release">Release</h2>
+<p><strong>Code and checkpoints are coming soon.</strong> We will release them in stages, starting with JiT, followed by SiT and SiT-REPA.</p>
+<div class="table-scroll" tabindex="0" aria-label="Results table"><table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Resource</th>
+<th style="text-align: left;">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Paper</td>
+<td style="text-align: left;"><a href="paper.pdf">PDF</a></td>
+</tr>
+
+<tr class="even">
+<td style="text-align: left;">GitHub repository</td>
+<td style="text-align: left;"><a href="https://github.com/sunovivid/correction-training">README and results</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Training and sampling code</td>
+<td style="text-align: left;">Coming soon</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Model checkpoints</td>
+<td style="text-align: left;">Coming soon</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Evaluation scripts and recipes</td>
+<td style="text-align: left;">Coming soon</td>
+</tr>
+</tbody>
+</table></div>
+</section><section class="content-section compact" data-section="Citation"><h2 id="citation">Citation</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="va">@misc</span>{<span class="ot">ahn2026correction</span>,</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="dt">title</span>  = {Correction Training for Diffusion Models},</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">  <span class="dt">author</span> = {Ahn, Donghoon and Wang, Runqian and Efros, Alexei A. and Park, Taesung and Belhe, Yash},</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">  <span class="dt">year</span>   = {2026}</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">}</a></code></pre></div>
+</section><section class="content-section compact" data-section="Acknowledgments"><h2 id="acknowledgments">Acknowledgments</h2>
+<p>Our experiments build on <a href="https://github.com/facebookresearch/DiT">DiT</a>, <a href="https://github.com/willisma/SiT">SiT</a>, <a href="https://github.com/sihyun-yu/REPA">REPA</a>, <a href="https://github.com/hustvl/LightningDiT">LightningDiT</a>, and <a href="https://github.com/LTH14/JiT">JiT</a>. We thank their authors for sharing their code and models.</p>
+</section></main><footer><span>Correction Training for Diffusion Models</span><a href="#top">Back to top</a></footer><dialog id="figure-viewer" aria-label="Expanded figure"><button type="button" class="close-viewer" aria-label="Close expanded figure">Close</button><img alt=""></dialog></body></html>
