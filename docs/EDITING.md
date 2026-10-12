@@ -2,6 +2,14 @@
 
 The project page has its own source: **`docs/page.md`**. It does not read or synchronize with the repository README.
 
+The published URL is cited by the arXiv paper. **Edit the separate draft workspace**, not the published page:
+
+```text
+/global/home/users/donghoon/correction-training-draft/docs/page.md
+```
+
+That workspace uses the `draft` branch. The published `main` branch deploys only when explicitly requested; pushes do not automatically update the live page.
+
 - Edit the YAML block at the top for the title, authors, affiliations, navigation and resource links.
 - Edit the Markdown below it for paragraphs, headings, tables, image paths and captions.
 - Put images in `docs/assets/`, then use `![Description](assets/filename.png)` on its own line.
@@ -15,24 +23,25 @@ The project page has its own source: **`docs/page.md`**. It does not read or syn
 
 Pandoc and Python 3 are required. Pandoc is already installed on the current server.
 
-From the repository root:
+From the draft repository root:
 
 ```bash
+cd /global/home/users/donghoon/correction-training-draft
 python3 scripts/build_page.py
-python3 -m http.server 8847 --bind 127.0.0.1 --directory docs
+python3 -m http.server 8850 --bind 127.0.0.1 --directory docs
 ```
 
-Forward port 8847 in remote VSCode and open `http://localhost:8847/`. Rebuild after Markdown edits, then refresh the browser. If the preview server is already running, only the build command is needed.
+Forward port 8850 in remote VSCode and open `http://localhost:8850/`. Rebuild after Markdown edits, then refresh the browser. If the preview server is already running, only the build command is needed.
 
-## Publish
+## Save draft changes
 
 ```bash
 git add docs/page.md docs/assets
 git commit -m "Update project page"
-git push origin main
+git push origin draft
 ```
 
-GitHub Actions rebuilds the HTML from `page.md` and deploys it automatically. It does not require a local rebuild or a separate commit of generated HTML. Template and CSS changes also trigger deployment.
+Saving or pushing the draft does not change the published page. Publication is a separate step after review: approved changes must be moved to `main`, then the **Build and deploy project page** Actions workflow must be run manually on `main`. Do not run it while reviewing a draft.
 
 The public URL remains `https://sunovivid.github.io/correction-training/`.
 

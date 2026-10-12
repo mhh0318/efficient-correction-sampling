@@ -1,12 +1,6 @@
 name: Build and deploy project page
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - docs/**
-      - scripts/build_page.py
-      - .github/workflows/pages.yml
   workflow_dispatch:
 
 permissions:
@@ -18,6 +12,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7.0.1
