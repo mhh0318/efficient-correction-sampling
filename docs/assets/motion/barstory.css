@@ -1,0 +1,26 @@
+/* Animated phased bar charts (assets/motion/barstory.js). Uses the page's --blue, --ink, --muted, --line, --soft. */
+.barstory{position:relative;margin:26px 0 14px}
+.barstory .barstory-fallback{width:100%}
+.barstory.is-live .barstory-fallback{display:none}
+.barstory-svg{display:block;width:100%;height:auto;font-family:var(--sans,Inter,Arial,sans-serif)}
+.bs-grid{stroke:var(--line,#dce5ef);stroke-width:1}
+.bs-tick{font-size:14px;fill:var(--muted,#5c6a7b)}
+.bs-axis{font-size:15px;fill:var(--ink,#121b29)}
+.bs-phase{font-size:22px;font-weight:650;fill:var(--ink,#121b29)}
+.bs-legend{font-size:14px;fill:var(--ink,#121b29)}
+.bs-group{font-size:17px;font-weight:600;fill:var(--ink,#121b29)}
+.bs-base{fill:#c9d2dc}
+.bs-corr{fill:var(--blue,#2563a6)}
+.bs-cfg{fill:#7f8b99}
+.bs-corr2{fill:#173f6b}
+.bs-mark{stroke:#fff;stroke-width:2;stroke-dasharray:5 4}
+.bs-ghost{fill:rgba(37,99,166,.06);stroke:var(--blue,#2563a6);stroke-width:1.6;stroke-dasharray:5 4}
+.bs-val{font-size:14px;font-variant-numeric:tabular-nums;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
+.bs-base-t,.bs-cfg-t{fill:var(--muted,#5c6a7b)}
+.bs-corr-t{fill:var(--blue,#2563a6);font-size:17px;font-weight:700}
+.bs-corr2-t{fill:#173f6b;font-size:17px;font-weight:700}
+.bs-delta{font-size:16px;font-weight:700;fill:var(--blue,#2563a6);paint-order:stroke;stroke:#fff;stroke-width:5px}
+.barstory-replay{position:absolute;right:0;top:0;font-size:13px;padding:5px 11px;border:1px solid var(--line,#dce5ef);border-radius:4px;
+  background:#fff;color:var(--blue,#2563a6)}
+.barstory-replay:hover{background:var(--soft,#f3f7fc)}
+@media(max-width:650px){.bs-phase{font-size:26px}.bs-group{font-size:20px}.bs-corr-t,.bs-corr2-t{font-size:20px}.bs-val{font-size:17px}}

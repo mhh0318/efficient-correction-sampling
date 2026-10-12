@@ -1,0 +1,25 @@
+/* Step-through explainer (assets/motion/stepper.js). Uses the page's --blue, --line and --muted. */
+.mstep{margin:26px 0 14px}
+.mstep-head{display:flex;align-items:center;gap:14px;min-height:92px}
+.mstep-words{flex:1;position:relative;min-height:84px}
+.mstep-beat{position:absolute;inset:0;opacity:0;transform:translateY(6px);transition:opacity .35s ease,transform .35s ease;pointer-events:none}
+.mstep-beat.is-active{opacity:1;transform:none;pointer-events:auto}
+.mstep-title{margin:0 0 4px;font-size:20px;font-weight:650;color:var(--blue,#2474ab);display:flex;align-items:center;gap:10px}
+.mstep-n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--blue,#2474ab);color:#fff;font-size:15px;display:grid;place-items:center}
+.mstep-line{margin:0;font-size:16px;line-height:1.55;color:var(--ink,#1a1d21)}
+.mstep-head button,.mstep-play{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--line,#dde1e6);background:#fff;
+  display:grid;place-items:center;padding:0;color:var(--blue,#2474ab)}
+.mstep-head button:hover,.mstep-play:hover{background:#f3f7fb}
+.mstep-head svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.mstep-stage{cursor:pointer;border-radius:4px;overflow:hidden;background:#fff}
+.mstep-stage video{display:block;width:100%;height:auto}
+.mstep-controls{display:flex;align-items:center;gap:14px;margin-top:10px}
+.mstep-play::before{content:"";width:0;height:0;margin-left:3px;border-style:solid;border-width:7px 0 7px 12px;border-color:transparent transparent transparent currentColor}
+.mstep-play.is-playing::before{width:12px;height:14px;margin:0;border:0;border-left:4px solid currentColor;border-right:4px solid currentColor;box-sizing:border-box}
+.mstep-track{flex:1;display:flex;gap:4px;height:22px;align-items:center;cursor:pointer;touch-action:none}
+.mstep-seg{height:6px;border-radius:3px;background:var(--line,#dde1e6);overflow:hidden}
+.mstep-fill{height:100%;background:var(--blue,#2474ab);transform-origin:left center;transform:scaleX(0)}
+.mstep-count{flex:none;font-size:14px;color:var(--muted,#6b7280);font-variant-numeric:tabular-nums;min-width:42px;text-align:right}
+@media(max-width:650px){.mstep-head{gap:8px;min-height:110px}.mstep-words{min-height:104px}.mstep-title{font-size:17px}.mstep-line{font-size:14px}
+  .mstep-head button,.mstep-play{width:34px;height:34px}}
+@media(prefers-reduced-motion:reduce){.mstep-beat{transition:none}}
