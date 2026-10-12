@@ -5,10 +5,10 @@ The project page has its own source: **`docs/page.md`**. It does not read or syn
 The published URL is cited by the arXiv paper. **Edit the separate draft workspace**, not the published page:
 
 ```text
-/global/home/users/donghoon/correction-training-draft/docs/page.md
+/global/home/users/donghoon/correction-training-public/docs/page.md
 ```
 
-That workspace uses the `draft` branch. The published `main` branch deploys only when explicitly requested; pushes do not automatically update the live page.
+The separate draft server reads this original editing file directly and renders only under `correction-training-draft/docs/`. The copied Markdown in the draft worktree is not the active input. The published `main` branch deploys only when explicitly requested; pushes do not automatically update the live page.
 
 - Edit the YAML block at the top for the title, authors, affiliations, navigation and resource links.
 - Edit the Markdown below it for paragraphs, headings, tables, image paths and captions.
@@ -27,11 +27,10 @@ From the draft repository root:
 
 ```bash
 cd /global/home/users/donghoon/correction-training-draft
-python3 scripts/build_page.py
-python3 -m http.server 8850 --bind 127.0.0.1 --directory docs
+python3 scripts/preview.py
 ```
 
-Forward port 8850 in remote VSCode and open `http://localhost:8850/`. Rebuild after Markdown edits, then refresh the browser. If the preview server is already running, only the build command is needed.
+Forward port 8850 in remote VSCode and open `http://localhost:8850/`. The draft server watches the original Markdown input, rebuilds it on save, and refreshes the browser. It never pushes commits or deploys the public page.
 
 ## Save draft changes
 
