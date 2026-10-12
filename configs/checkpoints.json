@@ -1,0 +1,439 @@
+{
+  "repository": "sunovivid/correction-training",
+  "release": "imagenet-checkpoints-v1",
+  "models": {
+    "jit": {
+      "architecture": "JiT-L/16",
+      "training_updates": 100000,
+      "config": {
+        "format": "correction-training/2",
+        "model": {
+          "model": "JiT-L/16",
+          "image_size": 256,
+          "num_classes": 1000,
+          "t_eps": 0.05,
+          "noise_scale": 1.0,
+          "p_mean": -0.8,
+          "p_std": 0.8,
+          "label_drop": 0.1
+        },
+        "correction": {
+          "input": "x",
+          "output": "x",
+          "combine": "direct",
+          "gate_init": 0.0
+        },
+        "training": {
+          "loss_space": "v",
+          "detach_input": true,
+          "detach_skip": false,
+          "correction_steps": 1,
+          "base_loss_weight": 1.0,
+          "correction_loss_weight": 1.0,
+          "steps": 100000,
+          "batch_size": 32,
+          "accumulation": 4,
+          "lr": 5e-05,
+          "warmup_epochs": 5.0,
+          "save_every": 1000,
+          "export_every": 1000
+        },
+        "sampling": {
+          "steps": 45,
+          "corrections": 9,
+          "correction_interval": [
+            0.8,
+            1.0
+          ],
+          "cfg": 1.0,
+          "cfg_interval": [
+            0.1,
+            1.0
+          ]
+        },
+        "source": {
+          "original": {
+            "sha256": "3e4129f937998905ebafb7eab8a607760132dadfecb15087e9330b9cf9e65e52",
+            "selected_weights": "model_ema2",
+            "training_step": 100000
+          },
+          "weights_sha256": "6113a3e056346978218c23ac0f7748237584d2023f1a96d937b72b247a7f8628",
+          "config_sha256": "4dc85ef7917e6fb1c7f21887665595bd824aa316fbdddc1a8de2ed765f866b34",
+          "training_recipe": "v1 runtime defaults; full run metadata not present"
+        },
+        "weights_sha256": "6113a3e056346978218c23ac0f7748237584d2023f1a96d937b72b247a7f8628",
+        "kind": "pair"
+      },
+      "weights": {
+        "size": 3673192512,
+        "sha256": "6113a3e056346978218c23ac0f7748237584d2023f1a96d937b72b247a7f8628",
+        "parts": [
+          {
+            "name": "jit.model.safetensors.part000",
+            "size": 1992294400,
+            "sha256": "786ba4ce990fcbf71abfdd2bf269a37384c44a34ca2f7f04c1ac83a39b32ff6c"
+          },
+          {
+            "name": "jit.model.safetensors.part001",
+            "size": 1680898112,
+            "sha256": "c53ddb9f0f63ac605e65aebb587318bbac0b58c8c7b98d32d8c60dea12f52604"
+          }
+        ]
+      }
+    },
+    "sit": {
+      "architecture": "SiT-XL/2",
+      "training_updates": 100000,
+      "config": {
+        "format": "correction-training/2",
+        "kind": "pair",
+        "model": {
+          "model": "SiT-XL/2",
+          "image_size": 256,
+          "num_classes": 1000,
+          "t_eps": 0.0,
+          "noise_scale": 1.0,
+          "p_mean": -0.8,
+          "p_std": 0.8,
+          "label_drop": 0.1,
+          "prediction": "v",
+          "data_time": 1,
+          "time_sampling": "uniform"
+        },
+        "codec": {
+          "name": "vae",
+          "pretrained": "stabilityai/sd-vae-ft-ema",
+          "revision": "f04b2c4b98319346dad8c65879f680b1997b204a",
+          "scale": 0.18215,
+          "bias": 0.0
+        },
+        "correction": {
+          "input": "x",
+          "output": "v",
+          "combine": "gated",
+          "gate_init": 0.0,
+          "gate_shape": "scalar",
+          "gate_mix": "blend"
+        },
+        "training": {
+          "loss_space": "v",
+          "detach_input": true,
+          "detach_skip": true,
+          "deterministic": false,
+          "correction_steps": 1,
+          "base_loss_weight": 1.0,
+          "correction_loss_weight": 1.0,
+          "steps": 100000,
+          "batch_size": 32,
+          "accumulation": 1,
+          "lr": 0.0001,
+          "betas": [
+            0.9,
+            0.999
+          ],
+          "ema": [
+            0.9999
+          ],
+          "precision": "fp32",
+          "gradient_precision": "fp32",
+          "gradient_bucket_mb": 25,
+          "warmup_epochs": 0.0,
+          "save_every": 1000,
+          "export_every": 1000
+        },
+        "sampling": {
+          "method": "sit_sde",
+          "precision": "fp32",
+          "steps": 83,
+          "corrections": 2,
+          "correction_interval": [
+            0.0,
+            1.0
+          ],
+          "cfg": 1.0,
+          "cfg_interval": [
+            0.0,
+            1.0
+          ]
+        },
+        "source": {
+          "sha256": "091d260248be0d1279a4bb8cc65747112e981d9534e10ffc0a52e18839a99520",
+          "family": "sit",
+          "selected_weights": "ema",
+          "transformation": {
+            "unused_projector_tensors": [],
+            "unused_variance_channels_per_patch_pixel": 4
+          },
+          "training_recipe": "Continuation defaults; full historical training replay not validated"
+        },
+        "weights_sha256": "8a290d50201ee44472a82da2ea5fc6ea553b268b1979d94b59377acf3f1bcd36"
+      },
+      "weights": {
+        "size": 5400952044,
+        "sha256": "8a290d50201ee44472a82da2ea5fc6ea553b268b1979d94b59377acf3f1bcd36",
+        "parts": [
+          {
+            "name": "sit.model.safetensors.part000",
+            "size": 1992294400,
+            "sha256": "155e34c062f814cc19280c7f1332efc93c79b50ae63aab82c5ec9a75817c5776"
+          },
+          {
+            "name": "sit.model.safetensors.part001",
+            "size": 1992294400,
+            "sha256": "d0ceee731daf55c2c66d66c57208163bb17e602244e107659fb652d0f0f394e7"
+          },
+          {
+            "name": "sit.model.safetensors.part002",
+            "size": 1416363244,
+            "sha256": "5cb34498208542dedeaf013dc5f7292937ed7a9dd45fb3ce71d0e7fc37b53c69"
+          }
+        ]
+      }
+    },
+    "sit-repa-50k": {
+      "architecture": "SiT-XL/2",
+      "training_updates": 50000,
+      "config": {
+        "format": "correction-training/2",
+        "kind": "pair",
+        "model": {
+          "model": "SiT-XL/2",
+          "image_size": 256,
+          "num_classes": 1000,
+          "t_eps": 0.0,
+          "noise_scale": 1.0,
+          "p_mean": -0.8,
+          "p_std": 0.8,
+          "label_drop": 0.1,
+          "prediction": "v",
+          "data_time": 0,
+          "time_sampling": "uniform"
+        },
+        "codec": {
+          "name": "vae",
+          "pretrained": "stabilityai/sd-vae-ft-ema",
+          "revision": "f04b2c4b98319346dad8c65879f680b1997b204a",
+          "scale": 0.18215,
+          "bias": 0.0
+        },
+        "correction": {
+          "input": "x",
+          "output": "v",
+          "combine": "gated",
+          "gate_init": 0.0,
+          "gate_shape": "channel",
+          "gate_mix": "difference"
+        },
+        "training": {
+          "loss_space": "v",
+          "detach_input": true,
+          "detach_skip": true,
+          "deterministic": false,
+          "correction_steps": 1,
+          "base_loss_weight": 1.0,
+          "correction_loss_weight": 1.0,
+          "steps": 50000,
+          "batch_size": 32,
+          "accumulation": 1,
+          "lr": 0.0001,
+          "betas": [
+            0.9,
+            0.999
+          ],
+          "ema": [
+            0.9999
+          ],
+          "precision": "fp32",
+          "gradient_precision": "fp32",
+          "gradient_bucket_mb": 25,
+          "warmup_epochs": 0.0,
+          "save_every": 1000,
+          "export_every": 1000
+        },
+        "sampling": {
+          "method": "repa_sde",
+          "precision": "fp32",
+          "steps": 123,
+          "corrections": 5,
+          "correction_interval": [
+            0.5,
+            0.7
+          ],
+          "cfg": 1.0,
+          "cfg_interval": [
+            0.0,
+            1.0
+          ]
+        },
+        "source": {
+          "sha256": "53a5bef3e8f440814c8892e445b666461730aff0e5cec98f41b4714a105ca7f9",
+          "family": "repa",
+          "selected_weights": "theta_ema",
+          "transformation": {
+            "unused_projector_tensors": [
+              "corr_net.projectors.0.0.bias",
+              "corr_net.projectors.0.0.weight",
+              "corr_net.projectors.0.2.bias",
+              "corr_net.projectors.0.2.weight",
+              "corr_net.projectors.0.4.bias",
+              "corr_net.projectors.0.4.weight",
+              "fm_net.projectors.0.0.bias",
+              "fm_net.projectors.0.0.weight",
+              "fm_net.projectors.0.2.bias",
+              "fm_net.projectors.0.2.weight",
+              "fm_net.projectors.0.4.bias",
+              "fm_net.projectors.0.4.weight"
+            ],
+            "unused_variance_channels_per_patch_pixel": 0
+          },
+          "training_recipe": "Continuation defaults; full historical training replay not validated"
+        },
+        "weights_sha256": "3837bd57b5e12d8c1ee2f5f4f1d0ff24ab0234f1a485384e6be449ce79486027"
+      },
+      "weights": {
+        "size": 5400952056,
+        "sha256": "3837bd57b5e12d8c1ee2f5f4f1d0ff24ab0234f1a485384e6be449ce79486027",
+        "parts": [
+          {
+            "name": "sit-repa-50k.model.safetensors.part000",
+            "size": 1992294400,
+            "sha256": "c0322e1b9b29bced83ff4b3c25c7bb64ca1f04bc804dcb7024e3fbb8215ddd98"
+          },
+          {
+            "name": "sit-repa-50k.model.safetensors.part001",
+            "size": 1992294400,
+            "sha256": "c9602ae5efec6aa409c6a262b3fa50fdb97e4947b2cfe4cb61b91d9c8b5e0d5f"
+          },
+          {
+            "name": "sit-repa-50k.model.safetensors.part002",
+            "size": 1416363256,
+            "sha256": "58dda126aaab90505a3e47dfc89cccfceb1fb8458baa5b04cb76eeb1c7a9c36f"
+          }
+        ]
+      }
+    },
+    "sit-repa-100k": {
+      "architecture": "SiT-XL/2",
+      "training_updates": 100000,
+      "config": {
+        "format": "correction-training/2",
+        "kind": "pair",
+        "model": {
+          "model": "SiT-XL/2",
+          "image_size": 256,
+          "num_classes": 1000,
+          "t_eps": 0.0,
+          "noise_scale": 1.0,
+          "p_mean": -0.8,
+          "p_std": 0.8,
+          "label_drop": 0.1,
+          "prediction": "v",
+          "data_time": 0,
+          "time_sampling": "uniform"
+        },
+        "codec": {
+          "name": "vae",
+          "pretrained": "stabilityai/sd-vae-ft-ema",
+          "revision": "f04b2c4b98319346dad8c65879f680b1997b204a",
+          "scale": 0.18215,
+          "bias": 0.0
+        },
+        "correction": {
+          "input": "x",
+          "output": "v",
+          "combine": "gated",
+          "gate_init": 0.0,
+          "gate_shape": "channel",
+          "gate_mix": "difference"
+        },
+        "training": {
+          "loss_space": "v",
+          "detach_input": true,
+          "detach_skip": true,
+          "deterministic": false,
+          "correction_steps": 1,
+          "base_loss_weight": 1.0,
+          "correction_loss_weight": 1.0,
+          "steps": 100000,
+          "batch_size": 32,
+          "accumulation": 1,
+          "lr": 0.0001,
+          "betas": [
+            0.9,
+            0.999
+          ],
+          "ema": [
+            0.9999
+          ],
+          "precision": "fp32",
+          "gradient_precision": "fp32",
+          "gradient_bucket_mb": 25,
+          "warmup_epochs": 0.0,
+          "save_every": 1000,
+          "export_every": 1000
+        },
+        "sampling": {
+          "method": "repa_sde",
+          "precision": "fp32",
+          "steps": 250,
+          "corrections": 6,
+          "correction_interval": [
+            0.0,
+            1.0
+          ],
+          "cfg": 1.0,
+          "cfg_interval": [
+            0.0,
+            1.0
+          ]
+        },
+        "source": {
+          "sha256": "c06d0479dcd6485d1431e06012aaaed0bc784c1b78cccec57d72ca08a8e11eda",
+          "family": "repa",
+          "training_step": 100000,
+          "selected_weights": "theta_ema",
+          "transformation": {
+            "unused_projector_tensors": [
+              "corr_net.projectors.0.0.bias",
+              "corr_net.projectors.0.0.weight",
+              "corr_net.projectors.0.2.bias",
+              "corr_net.projectors.0.2.weight",
+              "corr_net.projectors.0.4.bias",
+              "corr_net.projectors.0.4.weight",
+              "fm_net.projectors.0.0.bias",
+              "fm_net.projectors.0.0.weight",
+              "fm_net.projectors.0.2.bias",
+              "fm_net.projectors.0.2.weight",
+              "fm_net.projectors.0.4.bias",
+              "fm_net.projectors.0.4.weight"
+            ],
+            "unused_variance_channels_per_patch_pixel": 0
+          },
+          "training_recipe": "Continuation defaults; full historical training replay not validated"
+        },
+        "weights_sha256": "5d33cc863fbbc904da4accbffbae0483f95f99c1797a4742253a17ad6a6cc427"
+      },
+      "weights": {
+        "size": 5400952056,
+        "sha256": "5d33cc863fbbc904da4accbffbae0483f95f99c1797a4742253a17ad6a6cc427",
+        "parts": [
+          {
+            "name": "sit-repa-100k.model.safetensors.part000",
+            "size": 1992294400,
+            "sha256": "677be351eaf5f5f6ea751f95b68630eebe0d2923c7820426a75c7bd78e619125"
+          },
+          {
+            "name": "sit-repa-100k.model.safetensors.part001",
+            "size": 1992294400,
+            "sha256": "7c0e1ccbf800304c76dd09611681293c836229d72108e04e7bae19ebf3845274"
+          },
+          {
+            "name": "sit-repa-100k.model.safetensors.part002",
+            "size": 1416363256,
+            "sha256": "0fa5845b6c0b7f5d4072a11e836f7e50e0140ce895b500f4beb23d1ee09d5867"
+          }
+        ]
+      }
+    }
+  }
+}
