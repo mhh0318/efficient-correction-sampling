@@ -17,3 +17,13 @@
   dialog.addEventListener('close', () => { if (opener) opener.focus(); });
   window.projectReady = true;
 })();
+
+// Count the published page; exclude local and tunnel previews.
+(() => {
+  if (window.location.hostname !== 'sunovivid.github.io') return;
+  const script = document.createElement('script');
+  script.type = 'module';
+  script.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+  script.setAttribute('data-cf-beacon', JSON.stringify({token: 'bcb5d605a56943f49b556b03849d7327'}));
+  document.body.appendChild(script);
+})();
