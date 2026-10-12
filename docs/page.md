@@ -34,8 +34,6 @@ navigation:
     href: "#imagenet-results"
   - label: "Text-to-image"
     href: "#text-to-image-results"
-blog-label: "Blog post"
-blog-status: "Coming soon"
 resources:
   - label: "Paper PDF"
     href: "paper.pdf"
@@ -61,14 +59,11 @@ Correction achieves **2.07 FID with DiT, 1.92 with SiT, and 2.96 with JiT**\
 on class-conditional ImageNet-256, without classifier-free guidance.
 
 :::
+**TL;DR:** We train a corrector that takes the diffusion model's prediction and refines the prediction to make it closer to the same clean target.
+At inference, we apply correction multiple times at each denoising step. This simple framework improves the sample quality of diffusion models, yielding results that are better than or competitive with classifier-free guidance.
 
 ![Class-conditional ImageNet samples without CFG and unconditional ImageNet samples generated with correction](assets/samples.svg){width="1103" height="430" mobile-srcset="assets/samples-768.jpg 768w, assets/samples-1280.jpg 1280w"}
 
-::: {.intro}
-
-We train a corrector to refine the denoiser’s prediction using the same clean target. At inference, we reuse the corrector within each denoising step before advancing the sampling trajectory.
-
-:::
 
 ::::
 
@@ -76,11 +71,11 @@ We train a corrector to refine the denoiser’s prediction using the same clean 
 
 ## Method {#method}
 
-![Training and sampling diagram. Both networks learn from the same clean target, with stop-gradient through the denoiser prediction. Sampling contains an outer denoising loop and an inner correction loop.](assets/method.png){width="100%"}
+![Overall framework: We introduce a corrector that is trained to refine the prediction from the base denoiser to match the same clean target used in the denoising loss (top row). During sampling, we iteratively correct the prediction from the denoiser at each denoising step (bottom row).](assets/method.png){width="100%"}
 
 <ul>
-<!-- <li><strong>Training:</strong> the denoiser predicts from a noisy image; the corrector takes that prediction and learns to recover the same clean target. Correction-loss gradients are stopped at the denoiser's prediction.</li> -->
-<!-- <li><strong>Sampling:</strong> denoise once, apply the corrector repeatedly at the same noise level, then use the refined prediction to construct the next noisy state.</li> -->
+<strong>Overall framework:</strong> We introduce a corrector that is trained to refine the prediction from the base denoiser to match the same clean target used in the denoising loss (top row). During sampling, we iteratively correct the prediction from the denoiser at each denoising step (bottom row).
+
 </ul>
 
 ::::
@@ -89,7 +84,16 @@ We train a corrector to refine the denoiser’s prediction using the same clean 
 
 ## ImageNet results {#imagenet-results}
 
-**High-quality generation without CFG.** Correction improves FID across DiT, SiT, SiT-REPA, and JiT at approximately the same sampling budget.
+### Improve sample quality with iterative correction {#control-refinement-with-k}
+
+We apply K corrections at every denoising step. Using a larger number of corrections produces significantly higher-quality images, with cleaner structure and artifacts removed from the generated images.
+
+![Final SiT-REPA generations of a macaw and hourglass at K = 0, 1, 2, 4, and 8; DiT FID and precision–recall curves across correction counts.](assets/imagenet-k-sweep.png){width="100%"}
+
+*Left: SiT-REPA final samples at different K. Right: DiT FID and precision–recall, evaluated on 50K images per setting.*
+
+### High-quality generation without CFG
+Correction improves FID across DiT, SiT, SiT-REPA, and JiT using a sampling budget that is the same as or smaller than that of CFG.
 
 | Model         |  Base FID ↓|  Correction, no CFG ↓|  CFG reference ↓|
 |:--------------|-----------:|---------------------:|----------------:|
@@ -98,30 +102,13 @@ We train a corrector to refine the denoiser’s prediction using the same clean 
 | SiT-REPA-XL/2 |        5.53|              **1.31**|             1.35|
 | JiT-L/16      |       14.86|              **2.96**|             2.35|
 
-*Class-conditional ImageNet-256, FID on 50K samples, approximately 250 network evaluations per image. The budget includes denoiser, corrector, and CFG calls. See the paper for each model's settings.*
+*Class-conditional ImageNet-256, FID on 50K samples, approximately 250 network evaluations per image (including denoiser and corrector calls for correction, and unconditional calls for CFG). We keep the number of network evaluations for correction no larger than that for CFG. See the paper for each model's settings.*
 
-### Control refinement with K {#control-refinement-with-k}
-
-Vary the number of corrections per denoising step to change the final sample. The examples below are **complete generations from noise**, with the same initial noise across each row.
-
-![Final SiT-REPA generations of a macaw and hourglass at K = 0, 1, 2, 4, and 8; DiT FID and precision–recall curves across correction counts.](assets/imagenet-k-sweep.png){width="100%"}
-
-*Left: SiT-REPA final samples at different K. Right: DiT FID and precision–recall, evaluated on 50K images per setting. Denoising steps are adjusted to keep the total budget approximately fixed; more correction is not always better.*
-
-<details>
-<summary>More final-sample K sweeps: SiT, SiT-REPA, and JiT</summary>
-
-![Final SiT, SiT-REPA, and JiT generations at K = 0, 1, 3, and 6, including bridges, cars, stockings, and people.](assets/imagenet-more-k-sweeps.png){width="100%"}
-
-*Each strip shares its class, initial noise, and denoising grid.*
-
-</details>
 
 ### More diversity, less oversaturation than strong CFG {#more-diversity-less-oversaturation-than-strong-cfg}
-
 Increasing CFG can push samples toward similar close-up portraits and oversaturated colors. Correction preserves more varied poses, framings, and backgrounds while producing sharp, coherent images.
 
-![Same-class husky samples: correction retains varied poses, scenes, and colors, while strong CFG produces similar close-up faces and oversaturation. FID and recall are shown for every setting.](assets/imagenet-diversity.png){width="100%"}
+![SiT-REPA husky samples: correction retains varied poses, scenes, and colors, while strong CFG produces similar close-up faces and oversaturation.](assets/imagenet-diversity-repa.jpg){width="100%" mobile-srcset="assets/imagenet-diversity-repa-768.jpg 768w, assets/imagenet-diversity-repa-1280.jpg 1280w"}
 
 *Same class and initial noises. Top: increasing correction K without CFG. Bottom: increasing CFG strength w. FID and recall quantify the quality–diversity trade-off.*
 
@@ -133,13 +120,13 @@ Increasing CFG can push samples toward similar close-up portraits and oversatura
 
 ### Already using CFG? Add correction. {#already-using-cfg-add-correction}
 
-**Correction also works alongside CFG.** It can reduce the “AI slop” look—oversaturated colors, overly stylized appearances, and repetitive compositions—while keeping more variety across seeds.
+**Correction also works alongside CFG.** Correction can reduce the AI look, oversaturated/overcooked colors, and loss of diversity from CFG.
 
 ![Text-to-image results for 'a photo of a bench'. Four groups compare no CFG versus CFG, and no correction versus correction. CFG plus correction produces more varied bench designs and viewpoints.](assets/cfg-plus-correction.png){width="100%"}
 
 *Prompt: “a photo of a bench.” Each group contains the same eight seeds. Left: no CFG (w = 1); right: CFG (w = 6). Top: no correction; bottom: K = 6. These qualitative examples fix 50 denoising steps, so correction adds inference compute.*
 
-In the paper's human study, **CFG + correction was preferred in 60.75% of quality votes and 60.25% of diversity votes** across 80 prompts. The comparison uses the released baseline with CFG (w = 6) and the correction-trained model with CFG + correction (w = 4, K = 8), with 800 votes per criterion.
+In the paper's human study, **CFG + correction was preferred in 60.75% of quality votes and 60.25% of diversity votes**.
 
 ### Better prompt alignment, with or without CFG {#better-prompt-alignment-with-or-without-cfg}
 
@@ -150,9 +137,9 @@ In the paper's human study, **CFG + correction was preferred in 60.75% of qualit
 | CFG (w = 4)              |    0|                  250|      68.08|        83.38|
 | CFG + correction (w = 4) |    2|                  246|  **70.48**|    **83.69**|
 
-*NanoGen text-to-image model at 256 × 256. The sampling budget is approximately matched: 250 vs. 245 network evaluations without CFG, and 250 vs. 246 with CFG. Guided sampling applies correction before CFG.*
+*NanoGen text-to-image model at 256 × 256. The sampling budget is approximately matched: 250 (baseline) vs. 245 network evaluations without CFG (ours), and 250 (baseline) vs. 246 with CFG (ours).*
 
-![Text-to-image comparisons of a green guitar, vintage car, sunlit kitchen, three violins, rabbit and seashell, and Victorian library. Correction improves object geometry and organizes cluttered scenes.](assets/text-to-image.png){width="100%"}
+![Correction improves object geometry and organizes cluttered scenes.](assets/text-to-image.png){width="100%"}
 
 ::::
 
@@ -164,11 +151,10 @@ BEHIND THE RESULTS
 
 :::
 
-## Why does repeated correction help?
+## Why does correction help?
 
-Matched-denoiser comparisons, prediction trajectories, reconstruction error, and the training–inference gap.
+Diffusion models often predict structure-collapsed images (if we don't use guidance) because of error accumulation during sampling (so-called "exposure bias"). Correction learns to make predictions sharper and globally coherent, and applying it multiple times can make an incoherent prediction from the base denoiser much sharper and more realistic, which makes the intermediate states more in-distribution with respect to its training distribution, thus resulting in better-quality samples. Please refer to Section 4 (Discussion) of the paper.
 
-<span class="notes-link blog-soon">Blog post <small>Coming soon</small></span>
 
 ::::
 
@@ -184,7 +170,6 @@ Matched-denoiser comparisons, prediction trajectories, reconstruction error, and
 | GitHub repository              | [README and results](https://github.com/sunovivid/correction-training) |
 | Training and sampling code     | Coming soon                                                            |
 | Model checkpoints              | Coming soon                                                            |
-| Evaluation scripts and recipes | Coming soon                                                            |
 
 ::::
 
