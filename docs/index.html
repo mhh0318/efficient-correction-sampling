@@ -29,7 +29,7 @@
 <h3 id="diffusion-models-often-generate-poor-quality-images-without-guidance">Diffusion models often generate poor-quality images without guidance</h3>
 <figure class="paper-figure flux-small"><a class="figure-link" href="assets/flux-klein-no-cfg/unguided_examples.png" data-lightbox><img loading="lazy" decoding="async" src="assets/flux-klein-no-cfg/unguided_examples.png" alt="FLUX.2 Klein 9B Base samples without classifier-free guidance: two empty-prompt generations, leather shoes, a fruit basket, and a car." /></a></figure>
 <p>Without guidance, diffusion models produce poor-quality samples even in recent large-scale models such as FLUX.2 Klein 9B. This has been a long-standing issue in diffusion-based image generation. Diffusion models generate good images only with classifier-free guidance.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
-<h3 id="structural-errors-during-denoising">Early structural errors can survive later denoising steps</h3>
+<h3 id="structural-errors-during-denoising">Early structural errors compound over later denoising steps</h3>
 <p>During training, the denoiser learns from noisy real images. During sampling, it receives intermediate states produced by its own imperfect predictions. This training–inference gap can let errors accumulate. In the example below, an unnatural mouth structure appears early; later denoising mainly adds detail without repairing it.</p>
 <link rel="stylesheet" href="assets/motion/stepper.css">
 <figure class="mstep" data-src="assets/motion/gap-steps.mp4" data-poster="assets/motion/gap-steps-poster.jpg" aria-label="The training–inference gap, step by step.">
