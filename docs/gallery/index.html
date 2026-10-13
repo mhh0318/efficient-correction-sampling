@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Browse saved generations from Correction Training for Diffusion Models.">
+  <title>Sample gallery — Correction Training</title>
+  <link rel="icon" type="image/png" sizes="64x64" href="../assets/favicon-hourglass.png"><link rel="icon" href="../assets/favicon-hourglass.ico" sizes="any">
+  <link rel="stylesheet" href="../assets/gallery.css">
+  <script src="../assets/gallery.js" defer></script>
+</head>
+<body class="gallery-page" data-full-gallery>
+  <header class="gallery-header">
+    <a class="gallery-back" href="../#sample-gallery"><span aria-hidden="true">←</span> Correction Training</a>
+    <h1>Uncurated samples</h1>
+    <span class="gallery-count" data-sample-count aria-live="polite"></span>
+  </header>
+  <nav class="sample-tabs gallery-tabs" aria-label="Sample collections" role="tablist">
+    <button type="button" role="tab" aria-selected="true" aria-controls="uncurated-grid" data-sample-category="imagenet-conditional">ImageNet conditional</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="uncurated-grid" tabindex="-1" data-sample-category="imagenet-unconditional">ImageNet unconditional</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="uncurated-grid" tabindex="-1" data-sample-category="text-conditional">Text-to-image conditional</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="uncurated-grid" tabindex="-1" data-sample-category="text-unconditional">Text-to-image unconditional</button>
+  </nav>
+  <main class="gallery-main">
+    <div class="gallery-context"><p data-sample-description></p><span data-sample-settings></span></div>
+    <div class="sample-grid full-sample-grid" id="uncurated-grid" role="tabpanel" aria-label="Generated samples" data-sample-grid></div>
+    <p class="sample-status" data-sample-status role="status">Loading samples…</p>
+    <div class="gallery-sentinel" data-sample-sentinel aria-hidden="true"></div>
+    <button type="button" class="gallery-load-more" data-load-more hidden>Show more samples</button>
+  </main>
+</body>
+</html>
