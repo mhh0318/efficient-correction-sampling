@@ -54,7 +54,7 @@
     duplicate.setAttribute('aria-hidden', 'true');
     duplicate.querySelectorAll('a').forEach(link => link.tabIndex = -1);
     track.replaceChildren(group, duplicate);
-    track.style.setProperty('--carousel-duration', `${samples.length * 6}s`);
+    track.style.setProperty('--carousel-duration', `${samples.length * 4.8}s`);
     track.getAnimations().forEach(animation => animation.currentTime = 0);
     viewport.scrollLeft = 0;
     tabs.forEach(tab => {

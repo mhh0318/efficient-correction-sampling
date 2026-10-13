@@ -103,7 +103,7 @@
 .carousel-toggle:focus-visible,.carousel-sample:focus-visible{outline:2px solid #087cf0;outline-offset:2px}
 .carousel-window{overflow-x:auto;padding-block:3px;scrollbar-width:none}
 .carousel-window::-webkit-scrollbar{display:none}
-.carousel-track{display:flex;width:max-content;animation:sample-scroll var(--carousel-duration,384s) linear infinite;will-change:transform}
+.carousel-track{display:flex;width:max-content;animation:sample-scroll var(--carousel-duration,307.2s) linear infinite;will-change:transform}
 .carousel-group{display:flex;gap:6px;padding-right:6px;flex:none}
 .carousel-sample{display:block;width:144px;height:144px;flex:none;overflow:hidden;background:#f0f3f6}
 .carousel-sample img{display:block;width:100%;height:100%;object-fit:contain;transition:transform 140ms ease}
