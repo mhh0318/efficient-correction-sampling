@@ -58,8 +58,7 @@
             "training_step": 100000
           },
           "weights_sha256": "6113a3e056346978218c23ac0f7748237584d2023f1a96d937b72b247a7f8628",
-          "config_sha256": "4dc85ef7917e6fb1c7f21887665595bd824aa316fbdddc1a8de2ed765f866b34",
-          "training_recipe": "v1 runtime defaults; full run metadata not present"
+          "config_sha256": "4dc85ef7917e6fb1c7f21887665595bd824aa316fbdddc1a8de2ed765f866b34"
         },
         "weights_sha256": "6113a3e056346978218c23ac0f7748237584d2023f1a96d937b72b247a7f8628",
         "kind": "pair"
@@ -163,8 +162,7 @@
           "transformation": {
             "unused_projector_tensors": [],
             "unused_variance_channels_per_patch_pixel": 4
-          },
-          "training_recipe": "Continuation defaults; full historical training replay not validated"
+          }
         },
         "weights_sha256": "8a290d50201ee44472a82da2ea5fc6ea553b268b1979d94b59377acf3f1bcd36"
       },
@@ -285,8 +283,7 @@
               "fm_net.projectors.0.4.weight"
             ],
             "unused_variance_channels_per_patch_pixel": 0
-          },
-          "training_recipe": "Continuation defaults; full historical training replay not validated"
+          }
         },
         "weights_sha256": "3837bd57b5e12d8c1ee2f5f4f1d0ff24ab0234f1a485384e6be449ce79486027"
       },
@@ -408,8 +405,7 @@
               "fm_net.projectors.0.4.weight"
             ],
             "unused_variance_channels_per_patch_pixel": 0
-          },
-          "training_recipe": "Continuation defaults; full historical training replay not validated"
+          }
         },
         "weights_sha256": "5d33cc863fbbc904da4accbffbae0483f95f99c1797a4742253a17ad6a6cc427"
       },

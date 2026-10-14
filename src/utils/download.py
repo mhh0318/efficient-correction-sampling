@@ -125,8 +125,10 @@ def download_model(name, output=Path('checkpoints'), *, repo=None):
     entry = catalog['models'][name]
     destination = output / name
     config_path, weights_path = destination / 'config.json', destination / 'model.safetensors'
-    if config_path.exists() and json.loads(config_path.read_text()) != entry['config']:
-        raise ValueError(f'{destination} contains a different recipe; use another directory')
+    if config_path.exists():
+        current = json.loads(config_path.read_text())
+        if any(current.get(key) != value for key, value in entry['config'].items() if key != 'source'):
+            raise ValueError(f'{destination} contains a different recipe; use another directory')
     if weights_path.exists():
         if weights_path.stat().st_size != entry['weights']['size'] or sha256(weights_path) != entry['weights']['sha256']:
             raise ValueError(f'{weights_path} contains different weights; use another directory')
@@ -143,7 +145,7 @@ def download_model(name, output=Path('checkpoints'), *, repo=None):
             with OPENER.open(urllib.request.Request(url, headers=headers), timeout=60) as response:
                 release = json.load(response)
         except urllib.error.HTTPError as error:
-            raise RuntimeError(f'Release unavailable (HTTP {error.code}). Check https://github.com/{repo}/releases/tag/{catalog['release']}. For API rate limits or a private mirror, run gh auth login or set GITHUB_TOKEN.') from None
+            raise RuntimeError(f"Release unavailable (HTTP {error.code}). Check https://github.com/{repo}/releases/tag/{catalog['release']}. For API rate limits or a private mirror, run gh auth login or set GITHUB_TOKEN.") from None
         assets = {asset['name']: asset for asset in release['assets']}
         cache = output / '.downloads' / repo.replace('/', '--') / catalog['release']
         parts = []

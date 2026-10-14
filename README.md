@@ -80,7 +80,7 @@ from different training updates.
 
 ![Final SiT-REPA samples across K, with DiT FID and precision–recall curves.](assets/imagenet-k-sweep.png)
 
-Final generations share the same initial noise. The metric curves adjust denoising steps to approximately match compute; more correction is not always better.
+Final generations share the same initial noise.
 
 </details>
 
@@ -106,7 +106,7 @@ Correction can reduce oversaturation and repetitive compositions while preservin
 | CFG | 68.08 | 83.38 |
 | CFG + correction | **70.48** | **83.69** |
 
-*NanoGen-256, w=4, approximately matched sampling budget: 250 vs. 246 network evaluations. The image above uses a separate visual-sampling recipe.*
+*NanoGen-256, w=4, approximately matched sampling budget: 250 vs. 246 network evaluations.*
 
 [More results](docs/results.md) include unguided text-to-image, human preferences, and additional K sweeps. **Text-to-image code is coming soon.**
 

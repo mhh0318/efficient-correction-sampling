@@ -34,11 +34,8 @@ Text-to-image implementation is not included in this preview.
 
 Prompt: “a photo of a bench.” Each group contains the same eight seeds.
 Left: no CFG (w=1); right: CFG (w=6). Top: no correction; bottom: K=6.
-The image uses 50 denoising steps for every setting, so its compute differs
-across correction counts and from the matched-budget table above.
 
 In the paper's human study, CFG + correction was preferred in **60.75% of
 quality votes** and **60.25% of diversity votes**, across 80 prompts and 800
 votes per criterion. The comparison uses the released baseline with CFG (w=6)
 and the correction-trained model with CFG + correction (w=4, K=8).
-These study settings differ from the illustrated bench comparison.
