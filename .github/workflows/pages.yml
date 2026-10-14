@@ -20,7 +20,7 @@ jobs:
       - name: Assemble site from docs/
         run: |
           mkdir _site
-          cp docs/index.html docs/project.css docs/project.js docs/paper.pdf docs/.nojekyll _site/
+          cp docs/index.html docs/project.css docs/project.js docs/abstract.css docs/paper.pdf docs/.nojekyll _site/
           cp -r docs/assets _site/assets
           cp -r docs/gallery _site/gallery
       - name: Fetch full sample gallery
