@@ -1,7 +1,7 @@
 <h1 align="center">Correction Training for Diffusion Models</h1>
 
 <p align="center">
-  <a href="https://sunovivid.github.io/">Donghoon Ahn</a><sup>1</sup> &nbsp;
+  <a href="https://correction-training.github.io/donghoon/">Donghoon Ahn</a><sup>1</sup> &nbsp;
   <a href="https://raywang4.github.io/">Runqian Wang</a><sup>1</sup> &nbsp;
   <a href="https://people.eecs.berkeley.edu/~efros/">Alexei A. Efros</a><sup>1</sup> &nbsp;
   <a href="https://taesung.me/">Taesung Park</a><sup>2</sup> &nbsp;
@@ -11,8 +11,8 @@
 </p>
 
 <p align="center">
-  <a href="https://sunovivid.github.io/correction-training/paper.pdf"><img src="assets/badges/paper.svg" alt="Paper: PDF"></a>
-  <a href="https://sunovivid.github.io/correction-training/"><img src="assets/badges/project.svg" alt="Project page"></a>
+  <a href="https://correction-training.github.io/paper.pdf"><img src="assets/badges/paper.svg" alt="Paper: PDF"></a>
+  <a href="https://correction-training.github.io/"><img src="assets/badges/project.svg" alt="Project page"></a>
   <a href="#code-and-checkpoints"><img src="assets/badges/code.svg" alt="Code: Coming soon"></a>
   <a href="https://github.com/sunovivid/correction-training/releases/tag/imagenet-checkpoints-v1"><img src="assets/badges/checkpoints.svg" alt="Checkpoints: Available"></a>
 </p>
