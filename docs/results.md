@@ -1,7 +1,7 @@
 # Additional results
 
-See the [paper](https://sunovivid.github.io/correction-training/paper.pdf) and
-[project page](https://sunovivid.github.io/correction-training/) for the full results.
+See the [paper](https://correction-training.github.io/paper.pdf) and
+[project page](https://correction-training.github.io/) for the full results.
 The main [README](../README.md#imagenet-results) contains the ImageNet FID table,
 matched-budget K curves, and diversity comparison.
 
@@ -11,6 +11,8 @@ matched-budget K curves, and diversity comparison.
 
 Each strip shares its class, initial noise, and denoising grid. These examples
 keep denoising steps fixed, so more correction adds inference compute.
+The [sampling guide](sampling.md#customize-samples) explains how
+to vary K and distinguish fixed-grid from matched-budget comparisons.
 
 ## Text-to-image prompt alignment
 

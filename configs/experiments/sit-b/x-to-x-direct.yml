@@ -1,0 +1,60 @@
+model:
+  model: SiT-B/2
+  image_size: 256
+  num_classes: 1000
+  t_eps: 0.0
+  noise_scale: 1.0
+  p_mean: -0.8
+  p_std: 0.8
+  label_drop: 0.1
+  prediction: x
+  data_time: 1
+  time_sampling: logit_normal
+
+codec:
+  name: vae
+  pretrained: stabilityai/sd-vae-ft-ema
+  revision: f04b2c4b98319346dad8c65879f680b1997b204a
+  scale: 0.18215
+  bias: 0.0
+
+correction:
+  input: x
+  output: x
+  combine: direct
+  gate_init: 0.0
+  gate_shape: scalar
+  gate_mix: blend
+
+training:
+  loss_space: v
+  detach_input: true
+  detach_skip: true
+  deterministic: false
+  correction_steps: 1
+  base_loss_weight: 0.0
+  correction_loss_weight: 1.0
+  steps: 100000
+  batch_size: 32
+  accumulation: 1
+  lr: 0.0001
+  betas: [0.9, 0.999]
+  ema: [0.9999]
+  precision: bf16
+  gradient_precision: fp32
+  gradient_bucket_mb: 25
+  warmup_epochs: 0.0
+  save_every: 10000
+  export_every: 10000
+  mode: corrector
+  seed: 0
+  horizontal_flip: true
+
+sampling:
+  method: heun
+  precision: fp32
+  denoising_steps: 50
+  corrections_per_step: 1
+  correction_interval: [1.0, 0.0] # [correction start t, correction end t], t=0.0 is data, t=1.0 is noise
+  cfg: 1.0
+  cfg_interval: [1.0, 0.0]

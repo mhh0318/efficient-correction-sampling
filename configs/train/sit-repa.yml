@@ -1,0 +1,57 @@
+model:
+  model: SiT-XL/2
+  image_size: 256
+  num_classes: 1000
+  t_eps: 0.0
+  noise_scale: 1.0
+  p_mean: -0.8
+  p_std: 0.8
+  label_drop: 0.1
+  prediction: v
+  data_time: 0
+  time_sampling: uniform
+
+codec:
+  name: vae
+  pretrained: stabilityai/sd-vae-ft-ema
+  revision: f04b2c4b98319346dad8c65879f680b1997b204a
+  scale: 0.18215
+  bias: 0.0
+
+correction:
+  input: x
+  output: v
+  combine: gated
+  gate_init: 0.0
+  gate_shape: channel
+  gate_mix: difference
+
+training:
+  loss_space: v
+  detach_input: true
+  detach_skip: true
+  deterministic: false
+  correction_steps: 1
+  base_loss_weight: 1.0
+  correction_loss_weight: 1.0
+  steps: 100000
+  batch_size: 32
+  accumulation: 1
+  lr: 0.0001
+  betas: [0.9, 0.999]
+  ema: [0.9999]
+  precision: fp32
+  gradient_precision: fp32
+  gradient_bucket_mb: 25
+  warmup_epochs: 0.0
+  save_every: 5000
+  export_every: 10000
+
+sampling:
+  method: repa_sde
+  precision: fp32
+  denoising_steps: 123
+  corrections_per_step: 5
+  correction_interval: [0.7, 0.5] # [correction start t, correction end t], t=0.0 is data, t=1.0 is noise
+  cfg: 1.0
+  cfg_interval: [1.0, 0.0]

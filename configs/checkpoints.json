@@ -51,16 +51,6 @@
             1.0
           ]
         },
-        "source": {
-          "original": {
-            "sha256": "3e4129f937998905ebafb7eab8a607760132dadfecb15087e9330b9cf9e65e52",
-            "selected_weights": "model_ema2",
-            "training_step": 100000
-          },
-          "weights_sha256": "6113a3e056346978218c23ac0f7748237584d2023f1a96d937b72b247a7f8628",
-          "config_sha256": "4dc85ef7917e6fb1c7f21887665595bd824aa316fbdddc1a8de2ed765f866b34"
-        },
-        "weights_sha256": "6113a3e056346978218c23ac0f7748237584d2023f1a96d937b72b247a7f8628",
         "kind": "pair"
       },
       "weights": {
@@ -154,17 +144,7 @@
             0.0,
             1.0
           ]
-        },
-        "source": {
-          "sha256": "091d260248be0d1279a4bb8cc65747112e981d9534e10ffc0a52e18839a99520",
-          "family": "sit",
-          "selected_weights": "ema",
-          "transformation": {
-            "unused_projector_tensors": [],
-            "unused_variance_channels_per_patch_pixel": 4
-          }
-        },
-        "weights_sha256": "8a290d50201ee44472a82da2ea5fc6ea553b268b1979d94b59377acf3f1bcd36"
+        }
       },
       "weights": {
         "size": 5400952044,
@@ -262,30 +242,7 @@
             0.0,
             1.0
           ]
-        },
-        "source": {
-          "sha256": "53a5bef3e8f440814c8892e445b666461730aff0e5cec98f41b4714a105ca7f9",
-          "family": "repa",
-          "selected_weights": "theta_ema",
-          "transformation": {
-            "unused_projector_tensors": [
-              "corr_net.projectors.0.0.bias",
-              "corr_net.projectors.0.0.weight",
-              "corr_net.projectors.0.2.bias",
-              "corr_net.projectors.0.2.weight",
-              "corr_net.projectors.0.4.bias",
-              "corr_net.projectors.0.4.weight",
-              "fm_net.projectors.0.0.bias",
-              "fm_net.projectors.0.0.weight",
-              "fm_net.projectors.0.2.bias",
-              "fm_net.projectors.0.2.weight",
-              "fm_net.projectors.0.4.bias",
-              "fm_net.projectors.0.4.weight"
-            ],
-            "unused_variance_channels_per_patch_pixel": 0
-          }
-        },
-        "weights_sha256": "3837bd57b5e12d8c1ee2f5f4f1d0ff24ab0234f1a485384e6be449ce79486027"
+        }
       },
       "weights": {
         "size": 5400952056,
@@ -383,31 +340,7 @@
             0.0,
             1.0
           ]
-        },
-        "source": {
-          "sha256": "c06d0479dcd6485d1431e06012aaaed0bc784c1b78cccec57d72ca08a8e11eda",
-          "family": "repa",
-          "training_step": 100000,
-          "selected_weights": "theta_ema",
-          "transformation": {
-            "unused_projector_tensors": [
-              "corr_net.projectors.0.0.bias",
-              "corr_net.projectors.0.0.weight",
-              "corr_net.projectors.0.2.bias",
-              "corr_net.projectors.0.2.weight",
-              "corr_net.projectors.0.4.bias",
-              "corr_net.projectors.0.4.weight",
-              "fm_net.projectors.0.0.bias",
-              "fm_net.projectors.0.0.weight",
-              "fm_net.projectors.0.2.bias",
-              "fm_net.projectors.0.2.weight",
-              "fm_net.projectors.0.4.bias",
-              "fm_net.projectors.0.4.weight"
-            ],
-            "unused_variance_channels_per_patch_pixel": 0
-          }
-        },
-        "weights_sha256": "5d33cc863fbbc904da4accbffbae0483f95f99c1797a4742253a17ad6a6cc427"
+        }
       },
       "weights": {
         "size": 5400952056,
@@ -427,6 +360,80 @@
             "name": "sit-repa-100k.model.safetensors.part002",
             "size": 1416363256,
             "sha256": "0fa5845b6c0b7f5d4072a11e836f7e50e0140ce895b500f4beb23d1ee09d5867"
+          }
+        ]
+      }
+    },
+    "sit-repa-uncond-100k": {
+      "architecture": "SiT-XL/2",
+      "training_updates": 100000,
+      "conditioning": "unconditional",
+      "config": {
+        "format": "correction-training/2",
+        "kind": "pair",
+        "model": {
+          "model": "SiT-XL/2",
+          "image_size": 256,
+          "num_classes": 1000,
+          "t_eps": 0.0,
+          "noise_scale": 1.0,
+          "p_mean": -0.8,
+          "p_std": 0.8,
+          "label_drop": 0.1,
+          "prediction": "v",
+          "data_time": 0,
+          "time_sampling": "uniform"
+        },
+        "codec": {
+          "name": "vae",
+          "pretrained": "stabilityai/sd-vae-ft-ema",
+          "revision": "f04b2c4b98319346dad8c65879f680b1997b204a",
+          "scale": 0.18215,
+          "bias": 0.0
+        },
+        "correction": {
+          "input": "x",
+          "output": "v",
+          "combine": "gated",
+          "gate_init": 0.0,
+          "gate_shape": "channel",
+          "gate_mix": "difference"
+        },
+        "sampling": {
+          "method": "repa_sde",
+          "precision": "fp32",
+          "steps": 42,
+          "corrections": 5,
+          "correction_interval": [
+            0.0,
+            1.0
+          ],
+          "cfg": 1.0,
+          "cfg_interval": [
+            0.0,
+            1.0
+          ]
+        },
+        "conditioning": "unconditional"
+      },
+      "weights": {
+        "size": 5400952056,
+        "sha256": "243499b7ce2a32f1d92d5d866074133afc322060e2160c56100565f5d954a25b",
+        "parts": [
+          {
+            "name": "sit-repa-uncond-100k.model.safetensors.part000",
+            "size": 1992294400,
+            "sha256": "70128f5184bf062d3e63a00afa2b92bcdc717de600a9f119e59b78c4ad2b783c"
+          },
+          {
+            "name": "sit-repa-uncond-100k.model.safetensors.part001",
+            "size": 1992294400,
+            "sha256": "a750ba591553cd82daeda453a93f8767c08fd9f4677e33af6f9ba8ae28d00f2b"
+          },
+          {
+            "name": "sit-repa-uncond-100k.model.safetensors.part002",
+            "size": 1416363256,
+            "sha256": "8effa2732a764fc4917fba0973805ead2e6393c93852590c9347f865439f679c"
           }
         ]
       }

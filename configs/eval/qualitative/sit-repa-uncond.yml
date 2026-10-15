@@ -1,0 +1,16 @@
+checkpoint: sit-repa-uncond-100k
+
+sampling:
+  method: repa_sde
+  precision: fp32
+  denoising_steps: 42
+  corrections_per_step: 5
+  correction_interval: [1.0, 0.0] # [correction start t, correction end t], t=0.0 is data, t=1.0 is noise
+  cfg: 1.0
+  cfg_interval: [1.0, 0.0]
+
+generation:
+  runner: sample
+  seed: 0
+  samples: 4
+  unconditional: true

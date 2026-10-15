@@ -1,0 +1,6 @@
+tensorflow[and-cuda]==2.18.1
+numpy>=1.26,<2.1
+scipy==1.15.3
+Pillow
+requests
+tqdm

@@ -32,35 +32,217 @@
 
 ## Method
 
-https://github.com/user-attachments/assets/8969a92a-ced1-4862-a2b1-2dea261bac21
+[![Watch the training and sampling animation: an outer denoising loop and an inner correction loop.](assets/method.png)](https://correction-training.github.io/assets/motion/method-steps.mp4)
 
 The corrector learns to recover the clean target from the denoiser's prediction, with stop-gradient through that prediction. At inference, its output can be corrected again before constructing the next noisy state.
 
-## Code and checkpoints
+## Installation
 
-**Sampling and training code is coming soon.** ImageNet checkpoints are available
-in the [public Release](https://github.com/sunovivid/correction-training/releases/tag/imagenet-checkpoints-v1), with no GitHub login required.
+This implementation supports **JiT, SiT, and SiT-REPA**. DiT and text-to-image code are coming soon.
 
-| Name | Model | Updates | Use |
-| :--- | :--- | ---: | :--- |
-| `jit` | JiT-L/16 | 100K | Evaluation and sampling |
-| `sit` | SiT-XL/2 | 100K | Evaluation and sampling |
-| `sit-repa-50k` | SiT-REPA-XL/2 | 50K | Main-table evaluation |
-| `sit-repa-100k` | SiT-REPA-XL/2 | 100K | Visual sampling |
-
-Download a ready-to-load denoiser–corrector bundle with Python 3.11+:
+Sampling requires an NVIDIA GPU. On a cluster, run the sampling commands on a GPU node.
 
 ```bash
 git clone https://github.com/sunovivid/correction-training.git
 cd correction-training
-python src/utils/download.py sit  # Or: jit / sit-repa-50k / sit-repa-100k
+conda create -n correction python=3.11 pip -y --override-channels -c conda-forge # Use these flags to avoid Anaconda's ToS prompt.
+conda activate correction
+python -m pip install -r requirements-latent.txt
 ```
 
-The downloader saves `config.json` and `model.safetensors` in `checkpoints/NAME/`,
-verifies the download automatically, and resumes interrupted transfers.
-These are inference and initialization weights; optimizer restart states are
-not included. The two SiT-REPA checkpoints share an architecture, with weights
-from different training updates.
+`requirements-latent.txt` includes `requirements.txt` and installs the sampling and training dependencies for **all three models: JiT, SiT, and SiT-REPA**. For a JiT-only setup, `requirements.txt` is sufficient.
+
+Activate `correction` before running sampling, training, or evaluation commands.
+
+<details>
+<summary>Using venv</summary>
+
+With Python 3.11 installed, run these commands from the repository root:
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-latent.txt
+```
+
+</details>
+
+## Sampling
+
+Start with **16 golden retrievers** in a 4 × 4 grid:
+
+```bash
+# SiT-REPA-XL/2 (try this first!)
+python src/sample.py --config configs/eval/qualitative/sit-repa.yml --output samples/sit-repa-100k
+# SiT-XL/2
+python src/sample.py --config configs/eval/qualitative/sit.yml --output samples/sit
+# JiT-L/16
+python src/sample.py --config configs/eval/qualitative/jit.yml --output samples/jit
+```
+
+This will automatically download checkpoints from the [public Release](https://github.com/sunovivid/correction-training/releases/tag/imagenet-checkpoints-v1) on first use.
+Note: Download speeds sometimes decrease significantly during downloads (< 1 MB/s). If this happens, stopping the job with `Ctrl+C` and then rerunning it helps.
+
+To store checkpoints elsewhere, set `export CORRECTION_CHECKPOINT_DIR=/path/to/checkpoints` before running commands. The default is `checkpoints/`. (Allow about 11 GB of disk space per SiT/SiT-REPA checkpoint for the download parts and assembled weights.)
+
+The paper's baseline comparisons use approximately matched NFEs. Larger K can
+produce better images, so we use larger K for default sampling configuration. For the
+paper settings, see [Appendix B.1](https://correction-training.github.io/paper.pdf#page=23)
+and the [evaluation guide](docs/evaluation.md). (Sampling configs: [SiT-REPA](configs/eval/qualitative/sit-repa.yml),
+[SiT](configs/eval/qualitative/sit.yml), [JiT](configs/eval/qualitative/jit.yml))
+
+
+<br>
+You can override some options in the default configuration. Some of the main arguments you may want to modify are listed below:
+
+<details>
+<summary>Sampling arguments</summary>
+
+| Argument | Role | Example | Default |
+| :--- | :--- | :--- | :--- |
+| `--checkpoint` | Select weights or a local bundle | `sit-repa-50k` | From config |
+| `--classes` | [ImageNet class IDs](docs/imagenet-classes.md) | `207 250` | `207` (golden retriever) |
+| `--samples` | Total images | `8` | `16` |
+| `--batch-size` | Images per batch | `8` | `4` |
+| `--seed` | Random seed | `42` | `0` |
+| `--denoising_steps` | Outer denoising steps | `42` | From config |
+| `--corrections_per_step` | **K in the paper**: corrections per active denoising step | `8` | From config |
+| `--correction-interval` | Correction start t, end t (1 = noise, 0 = data) | `0.7 0.5` | From config |
+| `--cfg` | CFG scale; values other than 1 require K=0 | `3` | `1` |
+| `--output` | Parent directory for timestamped runs | `samples/dogs` | `samples/<checkpoint>/` |
+
+See the [full sampling options table](docs/sampling.md#customize-samples) for all options.
+
+</details>
+
+<br>
+Also check out some fun examples of sweeping K and comparing correction with CFG!
+
+<details>
+<summary>Sampling examples</summary>
+
+CLI arguments override the YAML defaults. For example:
+
+```bash
+# Siberian huskies: 16 images, a fixed seed, 4 images per batch
+python src/sample.py --config configs/eval/qualitative/sit-repa.yml \
+  --classes 250 --samples 16 --seed 42 --batch-size 4 --output samples/huskies
+
+# Use the 50K checkpoint with the same sampling recipe (the default is 100K)
+python src/sample.py --config configs/eval/qualitative/sit-repa.yml \
+  --checkpoint sit-repa-50k --classes 207 --seed 42 --output samples/dogs-50k
+
+# Change denoising steps, correction count K, and interval (248 NFEs)
+python src/sample.py --config configs/eval/qualitative/sit-repa.yml \
+  --denoising_steps 136 --corrections_per_step 4 --correction-interval 0.7 0.5 --output samples/k4
+
+# Unconditional generation
+python src/sample.py --config configs/eval/qualitative/sit-repa.yml \
+  --checkpoint sit-repa-uncond-100k --unconditional --samples 16 --seed 42 \
+  --output samples/unconditional
+
+```
+
+**Baseline (no guidance, no correction).** Use the same checkpoint with
+K=0 and CFG=1. These commands generate the same 16 golden retrievers with
+seed 0 and batch size 4, at approximately 250 NFEs:
+
+```bash
+# SiT-REPA: 250 NFEs
+python src/sample.py --config configs/eval/qualitative/sit-repa.yml \
+  --denoising_steps 250 --corrections_per_step 0 --cfg 1 --output samples/sit-repa-baseline
+
+# SiT: 250 NFEs
+python src/sample.py --config configs/eval/qualitative/sit.yml \
+  --denoising_steps 250 --corrections_per_step 0 --cfg 1 --output samples/sit-baseline
+
+# JiT: 249 NFEs (Heun)
+python src/sample.py --config configs/eval/qualitative/jit.yml \
+  --denoising_steps 125 --corrections_per_step 0 --cfg 1 --output samples/jit-baseline
+```
+
+**Compare baseline, CFG, and correction.** Run the [example script](src/examples/compare_sampling.sh):
+
+```bash
+bash src/examples/compare_sampling.sh
+```
+
+The script uses the same four initial noises and Siberian husky class for all
+three rows, at approximately 250 NFEs per image. It saves the grid to `samples/compare.png`.
+
+**Sweep CFG scale.** Run the [example script](src/examples/sweep_cfg.sh) for w=1, 3, 5, 7:
+
+```bash
+bash src/examples/sweep_cfg.sh
+```
+
+**Sweep correction count K.** Run the [example script](src/examples/sweep_corrections.sh)
+for K=0, 1, 2, 4, 6 at approximately 250 NFEs per image:
+
+```bash
+bash src/examples/sweep_corrections.sh
+```
+
+</details>
+
+## Checkpoints
+
+| Name | Model | Updates | Use |
+| :--- | :--- | ---: | :--- |
+| `sit-repa-50k` | SiT-REPA-XL/2 | 50K | Main-table evaluation |
+| `sit-repa-100k` | SiT-REPA-XL/2 | 100K | Visual sampling |
+| `sit-repa-uncond-100k` | SiT-REPA-XL/2 | 100K | Unconditional sampling |
+| `sit` | SiT-XL/2 | 100K | Evaluation and sampling |
+| `jit` | JiT-L/16 | 100K | Evaluation and sampling |
+
+Note that these checkpoints will be automatically downloaded when the corresponding [sampling](#sampling) or [evaluation](#evaluation) code runs on first use (recommended). Alternatively, you can manually download it from [public Release](https://github.com/sunovivid/correction-training/releases/tag/imagenet-checkpoints-v1).
+
+Bundles include both networks and their trained corrector configuration; no conversion is needed. See [checkpoint settings](docs/checkpoints.md) for parameterizations, gates, and downloads.
+
+## Training and evaluation
+
+> [!NOTE]
+> Training, checkpointing, resuming, and evaluation have been tested on short runs.
+> Full training-to-evaluation reproduction is still in progress.
+
+First [prepare ImageNet](docs/data.md). For an installation check, follow the
+[two-update training and resume example](docs/usage.md#first-training-run) on one GPU.
+For multi-GPU startup hangs, see [distributed startup](docs/usage.md#distributed-startup).
+
+To train correction from the official pretrained SiT denoiser:
+
+```bash
+torchrun --standalone --nproc_per_node=8 src/train.py \
+  --config configs/train/sit.yml --init-base sit \
+  --data /path/to/imagenet --output runs/sit
+```
+
+The official base weights download automatically and are converted on load.
+For SiT-REPA, use `--config configs/train/sit-repa.yml --init-base sit-repa`.
+Use `--init-pair sit` to fine-tune our released denoiser–corrector pair.
+
+The joint-training recipes save a restart checkpoint every 5K updates and an EMA bundle
+every 10K updates. Choose an output drive with about 100 GB free for a 100K run,
+including temporary space when replacing a restart checkpoint.
+
+- [Data preparation](docs/data.md): ImageNet download, preprocessing, and optional VAE caching.
+- [Training](docs/usage.md): model configs, pretrained initialization, fine-tuning, and resume.
+- [Evaluation](docs/evaluation.md): 50K generation, FID, precision, and recall.
+- [Configs](configs/README.md): model-specific training, sampling, and evaluation recipes.
+
+<a id="evaluation"></a>
+
+Generate evaluation samples with the same command for all three models:
+
+```bash
+torchrun --standalone --nproc_per_node=8 src/evaluate.py --model sit --output runs/sit-50k
+```
+
+Use `--model jit` or `--model sit-repa` for the other checkpoints. The
+[evaluation guide](docs/evaluation.md) provides evaluator installation, reference
+downloads, and FID / precision / recall commands for each model.
+
+See the [documentation index](docs/README.md) for all guides.
 
 ## ImageNet results
 
@@ -84,14 +266,11 @@ Final generations share the same initial noise.
 
 </details>
 
-<details>
-<summary>More diversity, less oversaturation than strong CFG</summary>
+### More diversity, less oversaturation than strong CFG
 
-![Correction and CFG husky samples, with FID and recall for each setting.](assets/imagenet-diversity.png)
+![SiT-REPA husky samples: CFG on top, correction below, with the strongest settings highlighted.](assets/imagenet-diversity.png)
 
-Same class and initial noises. Top: correction without CFG. Bottom: CFG. Correction retains varied poses, framing, backgrounds, and colors.
-
-</details>
+Same class and initial noises, at approximately matched NFE. Top: CFG. Bottom: correction without CFG. Correction retains varied poses, framing, backgrounds, and colors.
 
 ## Text-to-image: correction also works with CFG
 
@@ -120,6 +299,10 @@ Correction can reduce oversaturation and repetitive compositions while preservin
 }
 ```
 
+## License
+
+The code is released under the [MIT License](LICENSE). Adapted components retain their original copyright and license notices in [licenses/](licenses).
+
 ## Acknowledgments
 
-We build on [DiT](https://github.com/facebookresearch/DiT), [SiT](https://github.com/willisma/SiT), [REPA](https://github.com/sihyun-yu/REPA), [LightningDiT](https://github.com/hustvl/LightningDiT), and [JiT](https://github.com/LTH14/JiT).
+We build on [DiT](https://github.com/facebookresearch/DiT), [SiT](https://github.com/willisma/SiT), [REPA](https://github.com/sihyun-yu/REPA), [LightningDiT](https://github.com/hustvl/LightningDiT), and [JiT](https://github.com/LTH14/JiT). Their original license notices are preserved in [licenses/](licenses).

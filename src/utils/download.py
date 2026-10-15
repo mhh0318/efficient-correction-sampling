@@ -1,4 +1,4 @@
-"""Download a trained pair: python src/utils/download.py jit | sit | sit-repa-50k | sit-repa-100k."""
+"""Download trained checkpoints: python src/utils/download.py CHECKPOINT_NAME."""
 import argparse
 import hashlib
 import json
@@ -11,6 +11,8 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+
+from tqdm import tqdm
 
 CATALOG = Path(__file__).resolve().parents[2] / 'configs/checkpoints.json'
 
@@ -70,9 +72,13 @@ def fetch(url, path, expected, headers=None):
                         offset = 0
                     else:
                         raise ValueError(f'Unexpected HTTP status {response.status}')
-                    with partial.open('ab' if offset else 'wb') as output:
+                    with partial.open('ab' if offset else 'wb') as output, tqdm(
+                        total=expected['size'], initial=offset, desc=path.name,
+                        unit='B', unit_scale=True, unit_divisor=1024,
+                    ) as progress:
                         while block := response.read(8 * 1024**2):
                             output.write(block)
+                            progress.update(len(block))
                             if output.tell() > expected['size']:
                                 raise ValueError(f'Download exceeds expected size: {path.name}')
             except (OSError, urllib.error.URLError) as error:
@@ -115,22 +121,22 @@ def assemble(parts, output, expected):
             temporary.unlink(missing_ok=True)
 
 
-def download_model(name, output=Path('checkpoints'), *, repo=None):
+def download_model(name, output=None, *, repo=None):
     """Resolve one official bundle, using verified local files before any network access."""
     catalog = json.loads(CATALOG.read_text())
     if name not in catalog['models']:
         raise ValueError(f'Unknown official checkpoint: {name}')
     repo = repo or catalog['repository']
-    output = Path(output).expanduser()
+    output = Path(output if output is not None else os.environ.get('CORRECTION_CHECKPOINT_DIR', 'checkpoints')).expanduser()
     entry = catalog['models'][name]
     destination = output / name
     config_path, weights_path = destination / 'config.json', destination / 'model.safetensors'
     if config_path.exists():
         current = json.loads(config_path.read_text())
-        if any(current.get(key) != value for key, value in entry['config'].items() if key != 'source'):
+        if any(current.get(key) != value for key, value in entry['config'].items()):
             raise ValueError(f'{destination} contains a different recipe; use another directory')
     if weights_path.exists():
-        if weights_path.stat().st_size != entry['weights']['size'] or sha256(weights_path) != entry['weights']['sha256']:
+        if weights_path.stat().st_size != entry['weights']['size']:
             raise ValueError(f'{weights_path} contains different weights; use another directory')
         if config_path.is_file():
             return destination
@@ -145,7 +151,11 @@ def download_model(name, output=Path('checkpoints'), *, repo=None):
             with OPENER.open(urllib.request.Request(url, headers=headers), timeout=60) as response:
                 release = json.load(response)
         except urllib.error.HTTPError as error:
-            raise RuntimeError(f"Release unavailable (HTTP {error.code}). Check https://github.com/{repo}/releases/tag/{catalog['release']}. For API rate limits or a private mirror, run gh auth login or set GITHUB_TOKEN.") from None
+            raise RuntimeError(
+                f'Release unavailable (HTTP {error.code}). '
+                f'Check https://github.com/{repo}/releases/tag/{catalog["release"]}. '
+                'For API rate limits or a private mirror, run gh auth login or set GITHUB_TOKEN.'
+            ) from None
         assets = {asset['name']: asset for asset in release['assets']}
         cache = output / '.downloads' / repo.replace('/', '--') / catalog['release']
         parts = []
@@ -164,13 +174,10 @@ def download_model(name, output=Path('checkpoints'), *, repo=None):
     temporary = destination / '.config.json.tmp'
     temporary.write_text(json.dumps(entry['config'], indent=2) + '\n')
     temporary.replace(config_path)
-    receipt = dict(repository=repo, release=catalog['release'],
-                   catalog_sha256=sha256(CATALOG), weights_sha256=entry['weights']['sha256'])
-    (destination / 'download.json').write_text(json.dumps(receipt, indent=2) + '\n')
     return destination
 
 
-def resolve_checkpoint(value, root=Path('checkpoints')):
+def resolve_checkpoint(value, root=None):
     """Official names may download; explicit local paths never trigger a download."""
     names = json.loads(CATALOG.read_text())['models']
     if str(value) in names:
@@ -185,7 +192,7 @@ def main():
     catalog = json.loads(CATALOG.read_text())
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('models', nargs='+', choices=[*catalog['models'], 'all'])
-    parser.add_argument('--output', type=Path, default=Path('checkpoints'), help='Root directory for model bundles')
+    parser.add_argument('--output', type=Path, help='Root directory for model bundles (default: CORRECTION_CHECKPOINT_DIR or checkpoints)')
     parser.add_argument('--repo', default=catalog['repository'], help='Release repository (for a migrated release)')
     args = parser.parse_args()
     names = list(catalog['models']) if 'all' in args.models else list(dict.fromkeys(args.models))

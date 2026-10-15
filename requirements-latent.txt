@@ -1,0 +1,4 @@
+-r requirements.txt
+diffusers==0.35.2
+huggingface_hub==1.33.0
+accelerate==1.15.0

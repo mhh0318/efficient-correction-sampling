@@ -1,0 +1,42 @@
+model:
+  model: SiT-XL/2
+  image_size: 256
+  prediction: v
+  data_time: 1
+  time_sampling: uniform
+  label_drop: 0.0
+
+codec:
+  name: vae
+  pretrained: stabilityai/sd-vae-ft-ema
+  revision: f04b2c4b98319346dad8c65879f680b1997b204a
+
+training:
+  mode: distill
+  base_loss_weight: 1.0
+  correction_loss_weight: 0.0
+  steps: 100000
+  batch_size: 8
+  accumulation: 4
+  lr: 0.0001
+  betas: [0.9, 0.999]
+  ema: [0.9999]
+  precision: fp32
+  gradient_precision: fp32
+  grad_clip: 0.0
+  warmup_epochs: 0.0
+  warmup_steps: 100
+  save_every: 5000
+  export_every: 10000
+
+distillation:
+  teacher_corrections: 2
+
+sampling:
+  method: sit_sde
+  precision: fp32
+  denoising_steps: 83
+  corrections_per_step: 0
+  correction_interval: [1.0, 0.0] # [correction start t, correction end t], t=0.0 is data, t=1.0 is noise
+  cfg: 1.0
+  cfg_interval: [1.0, 0.0]

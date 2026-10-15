@@ -4,3 +4,28 @@ __pycache__/
 
 # Downloaded checkpoint bundles
 checkpoints/
+.pytest_cache/
+*.py[cod]
+.venv/
+.venv-*/
+venv/
+.env
+.env.*
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.npz
+*.npy
+*.tar
+*.tar.gz
+*.zip
+samples/
+runs/
+wandb/
+logs/
+*.log
+.DS_Store
+evaluation-assets/
+evaluation-reference/
+Miniconda3-*.sh

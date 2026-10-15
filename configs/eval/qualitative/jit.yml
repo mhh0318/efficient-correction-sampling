@@ -1,0 +1,17 @@
+checkpoint: jit
+
+sampling:
+  method: heun
+  precision: bf16
+  denoising_steps: 56
+  corrections_per_step: 10
+  correction_interval: [1.0, 0.6] # [correction start t, correction end t], t=0.0 is data, t=1.0 is noise
+  cfg: 1.0
+  cfg_interval: [0.9, 0.0]
+
+generation:
+  runner: sample
+  seed: 0
+  classes: [207]
+  samples: 16
+  batch_size: 4
