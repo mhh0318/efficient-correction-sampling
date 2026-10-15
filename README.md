@@ -14,7 +14,6 @@
   <a href="https://correction-training.github.io/paper.pdf?v=arxiv-v2-be01855b"><img src="assets/badges/paper.svg" alt="Paper: PDF"></a>
   <a href="https://arxiv.org/abs/2610.14136"><img src="assets/badges/arxiv.svg" alt="arXiv: 2610.14136"></a>
   <a href="https://correction-training.github.io/"><img src="assets/badges/project.svg" alt="Project page"></a>
-  <a href="#code-and-checkpoints"><img src="assets/badges/code.svg" alt="Code: Coming soon"></a>
   <a href="https://github.com/sunovivid/correction-training/releases/tag/imagenet-checkpoints-v1"><img src="assets/badges/checkpoints.svg" alt="Checkpoints: Available"></a>
 </p>
 
