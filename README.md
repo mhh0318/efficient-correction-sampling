@@ -32,7 +32,7 @@
 
 ## Method
 
-[![Watch the training and sampling animation: an outer denoising loop and an inner correction loop.](assets/method.png)](https://correction-training.github.io/assets/motion/method-steps.mp4)
+https://github.com/user-attachments/assets/8969a92a-ced1-4862-a2b1-2dea261bac21
 
 The corrector learns to recover the clean target from the denoiser's prediction, with stop-gradient through that prediction. At inference, its output can be corrected again before constructing the next noisy state.
 
