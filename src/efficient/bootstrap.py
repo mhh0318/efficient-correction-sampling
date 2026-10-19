@@ -61,10 +61,12 @@ def main():
         for run in args.runs:
             boots[run].append(score(features[run][idx]))
     reference = np.array(boots[args.runs[0]])
+    point = {run: fid(features[run]) for run in args.runs}
     for run in args.runs:
         b = np.array(boots[run])
-        print(f'{run.name:24s} FID {fid(features[run]):.3f}  s.e. {b.std():.3f}  '
-              f'diff vs {args.runs[0].name} {np.mean(b - reference):+.3f} +- {np.std(b - reference):.3f}')
+        # point difference of the full-sample FIDs, with the paired bootstrap standard error
+        print(f'{run.name:24s} FID {point[run]:.3f}  s.e. {b.std():.3f}  '
+              f'diff vs {args.runs[0].name} {point[run] - point[args.runs[0]]:+.3f} +- {np.std(b - reference):.3f}')
 
 
 if __name__ == '__main__':

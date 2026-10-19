@@ -8,6 +8,8 @@ checkpoints and the original correction sampler are theirs; see the upstream REA
 
 We add only sampling code (`src/efficient/`) that uses the released corrector differently, without any training.
 
+Blog post: [Efficient Corrective Sampling by Over-Relaxation](https://mhh0318.github.io/blog/efficient-corrective-sampling/)
+
 ## What we changed
 
 The released SiT-REPA pair combines the corrector proposal with a learned per-channel gate,
@@ -21,8 +23,9 @@ about 4% of the corrector's proposal. We treat the gate as a guidance strength i
 | `extrap` | K gated corrections, total move scaled by w: `v + w (v_K - v)` | K |
 | `relax` | K corrections with the gate scaled by s (over-relaxation): `v_k = v_{k-1} + s γ ⊙ (C(x̂0(v_{k-1})) - v_{k-1})` | K |
 
-Both reduce bit-exactly to the paper's sampler at unit scale (`src/tests/test_efficient.py`). Outside the interval every
-method is the plain denoiser.
+At unit scale, relax ($s = 1$) reduces bit-exactly to the paper's sampler, and extrap ($w = 1$) agrees with it up to
+floating-point rounding; `src/tests/test_efficient.py` checks both, the latter to a tolerance of $10^{-7}$. Outside the
+interval every method is the plain denoiser.
 
 ## Results
 
@@ -30,20 +33,21 @@ SiT-REPA-XL/2 (`sit-repa-50k`), class-conditional ImageNet 256×256, no CFG, the
 (`repa_sde`, 123 steps, corrections for t ∈ [0.5, 0.7], FID against `VIRTUAL_imagenet256_labeled.npz`). NFE counts
 denoiser and corrector forward passes per image.
 
-**FID-50K.** Differences come from a paired bootstrap over images (30 resamples; all runs share each image's noise
-seed and class).
+**FID-50K.** Differences are point differences of the FIDs, with standard errors from a paired bootstrap over images
+(30 resamples; all runs share each image's noise seed and class).
 
 | Method | NFE | FID-50K | Difference to paper K = 5 |
 | :--- | :---: | :---: | :---: |
 | paper, K = 5 | 248 | 1.291 | — |
 | `relax`, K = 2, s = 3 | 173 | **1.286** | −0.005 ± 0.007 |
 | `extrap`, K = 1, w = 6 | 148 | 1.312 | +0.021 ± 0.009 |
-| `extrap`, K = 2, w = 3 | 173 | 1.324 | +0.029 ± 0.011 |
+| `extrap`, K = 2, w = 3 | 173 | 1.324 | +0.033 ± 0.011 |
 
 Over-relaxation with two corrector calls matches the paper's five (the difference is within one standard error) at 70%
 of the NFE. Extrapolation with a single corrector call is within 0.02 FID of the paper at 60% of the NFE. The paper's
 sampler is not beaten by a clear margin: every setting we tried has its optimum at a total push of about 0.25–0.33 of
-‖v‖ per step.
+‖v‖ per step. With the same two corrector calls, over-relaxation is also better than extrapolating a two-step
+correction (1.286 vs. 1.324, a paired difference of 0.038 ± 0.009).
 
 **FID-10K** (images 0–9999; same protocol).
 
